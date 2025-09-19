@@ -4,13 +4,23 @@ import { IUser } from "./User.model";
 // ---------------------
 // Types / Interfaces
 // ---------------------
+
+export const VIDEO_DIMENSIONS = {
+  widht: 1080,
+  heihgt: 1920,
+} as const;
+
 export interface IVideo extends Document {
   title: string;
   description?: string;
-  url: string; // could be local path or remote URL
-  uploadedBy: IUser["_id"]; // relation to User
-  likes: number;
-  createdAt: Date;
+  videoUrl: string; // could be local path or remote URL
+  thumbnailUrl: string;
+  controles?: boolean;
+  transformation?: {
+    height: number;
+    width: number;
+    quality?: number;
+  };
 }
 
 // ---------------------
@@ -20,13 +30,14 @@ const VideoSchema: Schema<IVideo> = new Schema<IVideo>(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String },
-    url: { type: String, required: true },
-    uploadedBy: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    videoUrl: { type: String, required: true },
+    thumbnailUrl: { type: String, required: true },
+    controles: { type: Boolean, default: true },
+    transformation: {
+      height: { type: Number, default: VIDEO_DIMENSIONS.heihgt },
+      width: { type: Number, default: VIDEO_DIMENSIONS.widht },
+      quality: { type: Number, min: 1, max: 100 },
     },
-    likes: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -34,4 +45,6 @@ const VideoSchema: Schema<IVideo> = new Schema<IVideo>(
 // ---------------------
 // Model
 // ---------------------
-export const Video = mongoose.model<IVideo>("Video", VideoSchema);
+export const Video =
+  mongoose.models.Video ||
+  mongoose.model<IVideo>("Video", VideoSchema);
