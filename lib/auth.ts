@@ -22,7 +22,9 @@ export const authOptions: NextAuthOptions = {
           const user = await User.findOne({
             email: credentials.email,
           });
-          // continue
+          if (!user) {
+            throw new Error("No user found with this email");
+          }
           const isPasswordCorrect = bcrypt.compare(
             credentials.password,
             user.password
@@ -35,9 +37,33 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
           };
         } catch (error) {
-          throw new Error("Password is incorrect");
+          console.log(error);
+          throw new Error("Something went wrong");
         }
       },
     }),
   ],
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email as string;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
