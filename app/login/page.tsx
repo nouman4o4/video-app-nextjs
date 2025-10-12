@@ -1,19 +1,64 @@
 "use client"
 
-import { submitRegister } from "@/actions/registerAction"
 import { useActionState, useEffect } from "react"
-
-import { FormState } from "@/actions/registerAction"
-
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { loginSchema } from "@/schemas/login.shcema"
+import { signIn } from "next-auth/react"
 
-export default function Register() {
+type FormState = {
+  email: string
+  password: string
+  success?: boolean
+  errors?: Record<string, string[]>
+  message?: string
+} | null
+
+export default function Login() {
   const router = useRouter()
+
+  // submit action
+
+  const submitRegister = async (prevState: FormState, form_data: FormData) => {
+    const data = {
+      email: form_data.get("email") as string,
+      password: form_data.get("password") as string,
+    }
+    const parsed = loginSchema.safeParse(data)
+    if (!parsed.success) {
+      return {
+        ...data,
+        success: false,
+        errors: parsed.error.flatten().fieldErrors,
+      }
+    }
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: parsed.data.email,
+      password: parsed.data.password,
+    })
+    console.log(result)
+    if (result?.error) {
+      toast.error("Invalid email or password")
+      return {
+        ...data,
+        message: "Invalid email or password",
+        success: false,
+      }
+    }
+    toast.success("Login successfully")
+    router.push("/")
+    return {
+      ...data,
+      message: "Login successfully",
+      success: true,
+    }
+  }
+
   const [state, formAction, ispending] = useActionState<FormState, FormData>(
     submitRegister,
     {
-      name: "",
       email: "",
       password: "",
       errors: undefined,
@@ -22,34 +67,19 @@ export default function Register() {
     }
   )
 
-  useEffect(() => {
-    if (state?.success) {
-      toast.success("User registered successfully.")
-      setTimeout(() => router.push("/login"), 500)
-    } else if (!state?.success && state?.message) {
-      toast.error(state?.message || "Couldn't register the user")
-    }
-  }, [state, router])
+  // useEffect(() => {
+  //   if (state?.success) {
+  //     toast.success("User registered successfully.")
+  //     setTimeout(() => router.push("/login"), 500)
+  //   } else if (!state?.success && state?.message) {
+  //     toast.error(state?.message || "Couldn't register the user")
+  //   }
+  // }, [state, router])
 
   return (
     <div className="max-w-md  mx-auto p-6 bg-gray-900 text-white rounded-2xl shadow-lg mt-10">
-      <h1 className="text-2xl font-bold mb-4">Register</h1>
+      <h1 className="text-2xl font-bold mb-4">Login</h1>
       <form action={formAction} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block mb-1">Name</label>
-          <input
-            defaultValue={state?.name}
-            type="text"
-            name="name"
-            className="w-full p-2 rounded-md bg-gray-800 border border-gray-700"
-            placeholder="John Doe"
-          />
-          {state?.errors?.name && (
-            <p className="text-red-400 text-sm">{state.errors.name[0]}</p>
-          )}
-        </div>
-
         {/* Email */}
         <div>
           <label className="block mb-1">Email</label>
