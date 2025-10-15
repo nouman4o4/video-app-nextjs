@@ -30,7 +30,7 @@ class ApiClient {
   }
 
   async getVideos() {
-    return this.fetch("/vidoes")
+    return this.fetch("/video")
   }
 
   async createVideo(video: Omit<IVideo, "_id">) {

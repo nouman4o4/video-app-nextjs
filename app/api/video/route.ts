@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     await connectDB()
     const videos = await Video.find().sort({ createdAt: -1 }).lean()
     if (!videos || videos.length === 0) {
-      return NextResponse.json([], { status: 200 })
+      return NextResponse.json([[]], { status: 200 })
     }
 
     return NextResponse.json(videos)
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       {
         error: "Failed to fetch videos",
       },
-      { status: 5000 }
+      { status: 500 }
     )
   }
 }
