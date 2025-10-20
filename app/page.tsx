@@ -3,24 +3,27 @@
 import React, { useEffect, useState } from "react"
 import VideoContainer from "./components/VideoContainer"
 import { apiClient } from "@/lib/api-client"
+import { IMediaClient } from "@/types/interfaces"
 
 export default function page() {
-  const [videos, setVideos] = useState([])
+  const [media, setMedia] = useState<IMediaClient[]>([])
 
   useEffect(() => {
-    const fetchAllVideos = async () => {
+    const fetchAllMedia = async () => {
       try {
-        const response: any = await apiClient.getVideos()
+        const response: any = await apiClient.getMedia()
         if (response.status! === "500") {
-          console.error("Could not fetch videos due to server error.")
+          console.error("Could not fetch the media due to server error.")
           return
         }
-        setVideos(response)
+        console.log("Fetch all media response: ", response)
+
+        setMedia(response.data)
       } catch (error) {
         console.error(error)
       }
     }
-    fetchAllVideos()
+    fetchAllMedia()
   }, [])
 
   return (
@@ -29,7 +32,7 @@ export default function page() {
         Explore all the videos
       </h1>
       <div className="h-full ">
-        <VideoContainer videos={videos} />
+        <VideoContainer videos={media ?? []} />
       </div>
     </div>
   )
