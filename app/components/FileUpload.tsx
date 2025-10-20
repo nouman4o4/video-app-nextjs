@@ -13,24 +13,23 @@ import toast from "react-hot-toast"
 interface FileUploadProps {
   onSuccess: (res: any) => void
   onProgress: (progress: number) => void
-  fileType?: "image" | "video"
 }
 
-const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
+const FileUpload = ({ onSuccess, onProgress }: FileUploadProps) => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | undefined>("")
   const [file, setFile] = useState<File | undefined>()
+  const [fileType, setFileType] = useState(
+    file?.type.startsWith("video/") ? "video" : "image"
+  )
+  const [progress, setProgress] = useState(0)
 
   //validation
   const validateFile = (file: File) => {
-    if (fileType === "video") {
-      if (!file.type.startsWith("video/")) {
-        setError("Please a valid video file")
-      }
-    }
     if (file.size > 100 * 1024 * 1024) {
       setError("Video size must be less than 100 MB")
     }
+    setFileType(file?.type.startsWith("video/") ? "video" : "image")
     return true
   }
 
@@ -53,6 +52,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
           if (event.lengthComputable && onprogress) {
             const percent = (event.loaded / event.total) * 100
             onProgress(Math.round(percent))
+            setProgress(Math.round(percent))
           }
         },
 
@@ -60,7 +60,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
         // abortSignal: abortController.signal,
       })
       console.log(uploadResponse)
-      onSuccess(upload)
+      onSuccess({ ...uploadResponse, fileType })
     } catch (error) {
       console.error("Upload failed")
       console.error(error)
@@ -72,9 +72,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
 
   return (
     <div className="w-full max-w-sm mx-auto p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg text-center">
-      <h2 className="text-lg font-semibold mb-4 text-white">
-        {fileType === "video" ? "Upload Video" : "Upload Image"}
-      </h2>
+      <h2 className="text-lg font-semibold mb-4 text-white">Upload file</h2>
 
       {/* File Input */}
       <label
@@ -101,7 +99,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
         <input
           id="file-upload"
           type="file"
-          accept={fileType === "video" ? "video/*" : "image/*"}
+          accept={"video/*,image/*"}
           onChange={(e) => setFile(e.target.files?.[0])}
           className="hidden"
         />
@@ -126,7 +124,7 @@ const FileUpload = ({ onSuccess, onProgress, fileType }: FileUploadProps) => {
         <div className="mt-4">
           <progress
             className="w-full h-2 rounded-full overflow-hidden"
-            value={50} // replace this with your progress state
+            value={progress} // replace this with your progress state
             max={100}
           />
           <p className="text-xs text-gray-300 mt-1">Uploading...</p>

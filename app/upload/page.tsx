@@ -4,16 +4,50 @@ import { useState } from "react"
 
 import { toast } from "react-hot-toast"
 import FileUpload from "../components/FileUpload"
+import { apiClient } from "@/lib/api-client"
 
 export default function UploadPage() {
   const [progress, setProgress] = useState(0)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+
+  const saveVideoInDb = async (videoDetails: any) => {
+    const {
+      name,
+      thumbnailUrl,
+      height,
+      url,
+      versionInfo,
+      width,
+      fileId,
+      description,
+      fileType,
+    } = videoDetails
+
+    try {
+      const response = await apiClient.createMedia({
+        title: name,
+        description,
+        mediaUrl: url,
+        thumbnailUrl,
+        fileType,
+        uploadedBy: "userId"!,
+        transformation: {
+          height,
+          width,
+        },
+      })
+      console.log(`"Save ${fileType} in db, response: ", ${response}`)
+    } catch (error) {
+      console.error("Failed to post video, error: ", error)
+    }
+  }
 
   // When upload is successful
   const handleSuccess = (res: any) => {
     console.log("✅ Upload success:", res)
     setUploadedUrl(res.url) // ImageKit returns a URL field
     toast.success("File uploaded successfully!")
+    saveVideoInDb(res)
   }
 
   // When upload progress updates
@@ -26,11 +60,7 @@ export default function UploadPage() {
       <h1 className="text-2xl font-bold mb-4">Upload your image</h1>
 
       {/* ✅ FileUpload component */}
-      <FileUpload
-        onSuccess={handleSuccess}
-        onProgress={handleProgress}
-        fileType="image"
-      />
+      <FileUpload onSuccess={handleSuccess} onProgress={handleProgress} />
 
       <div className="mt-4">
         <p>Progress: {progress}%</p>
