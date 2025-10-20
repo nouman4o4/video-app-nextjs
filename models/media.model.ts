@@ -1,5 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { IUser } from "./User.model";
+import mongoose, { Document, ObjectId, Schema } from "mongoose"
 
 // ---------------------
 // Types / Interfaces
@@ -8,29 +7,32 @@ import { IUser } from "./User.model";
 export const VIDEO_DIMENSIONS = {
   widht: 1080,
   heihgt: 1920,
-} as const;
+} as const
 
-export interface IVideo extends Document {
-  title: string;
-  description?: string;
-  videoUrl: string; // could be local path or remote URL
-  thumbnailUrl: string;
-  controles?: boolean;
+export interface IMedia extends Document {
+  title: string
+  fileType: string
+  description?: string
+  mediaUrl: string // could be local path or remote URL
+  thumbnailUrl: string
+  controles?: boolean
   transformation?: {
-    height: number;
-    width: number;
-    quality?: number;
-  };
+    height: number
+    width: number
+    quality?: number
+  }
+  uploadedBy: ObjectId
 }
 
 // ---------------------
 // Schema
 // ---------------------
-const VideoSchema: Schema<IVideo> = new Schema<IVideo>(
+const MediaSchema: Schema<IMedia> = new Schema<IMedia>(
   {
     title: { type: String, required: true, trim: true },
+    fileType: { type: String, required: true },
     description: { type: String },
-    videoUrl: { type: String, required: true },
+    mediaUrl: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
     controles: { type: Boolean, default: true },
     transformation: {
@@ -38,13 +40,17 @@ const VideoSchema: Schema<IVideo> = new Schema<IVideo>(
       width: { type: Number, default: VIDEO_DIMENSIONS.widht },
       quality: { type: Number, min: 1, max: 100 },
     },
+    uploadedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
-);
+)
 
 // ---------------------
 // Model
 // ---------------------
-export const Video =
-  mongoose.models.Video ||
-  mongoose.model<IVideo>("Video", VideoSchema);
+export const Media =
+  mongoose.models.Media || mongoose.model<IMedia>("Media", MediaSchema)

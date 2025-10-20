@@ -1,4 +1,4 @@
-import { IVideo } from "@/models/video.model"
+import { IMediaClient } from "@/types/interfaces"
 
 type FetchOptins = {
   method?: "GET" | "POST" | "PUT" | "DELETE"
@@ -29,14 +29,14 @@ class ApiClient {
     return response.json()
   }
 
-  async getVideos() {
-    return this.fetch("/video")
+  async getMedia() {
+    return this.fetch("/media")
   }
 
-  async createVideo(video: Omit<IVideo, "_id">) {
-    return this.fetch("/videos", {
+  async createMedia(mediaInfo: IMediaClient) {
+    return this.fetch("/media", {
       method: "POST",
-      body: video,
+      body: mediaInfo,
     })
   }
 }
