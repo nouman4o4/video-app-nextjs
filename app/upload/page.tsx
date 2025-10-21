@@ -5,10 +5,13 @@ import { useState } from "react"
 import { toast } from "react-hot-toast"
 import FileUpload from "../components/FileUpload"
 import { apiClient } from "@/lib/api-client"
+import { useSession } from "next-auth/react"
 
 export default function UploadPage() {
   const [progress, setProgress] = useState(0)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
+  const { data: session, status } = useSession()
+  console.log({ session })
 
   const saveVideoInDb = async (videoDetails: any) => {
     const {
@@ -22,11 +25,14 @@ export default function UploadPage() {
       description,
       fileType,
     } = videoDetails
+    console.log({ videoDetails })
 
     try {
       const response = await apiClient.createMedia({
         title: name,
-        description,
+        description:
+          description ??
+          "This is a dummy description in case the real one is not available",
         mediaUrl: url,
         thumbnailUrl,
         fileType,
