@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       { status: 202 }
     )
   } catch (error) {
+    console.log({ error })
     return NextResponse.json(
       { success: false, error: "Failed to create a video" },
       { status: 500 }

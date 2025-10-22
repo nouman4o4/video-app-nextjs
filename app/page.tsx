@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import VideoContainer from "./components/VideoContainer"
+import MediaContainer from "./components/MediaContainer"
 import { apiClient } from "@/lib/api-client"
 import { IMediaClient } from "@/types/interfaces"
 
@@ -32,7 +32,7 @@ export default function page() {
         Explore all the videos
       </h1>
       <div className="h-full ">
-        <VideoContainer videos={media ?? []} />
+        <MediaContainer media={media ?? []} />
       </div>
     </div>
   )
