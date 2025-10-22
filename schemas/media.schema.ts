@@ -12,7 +12,7 @@ export const mediaSchema = z.object({
 
   description: z.string().max(100, "Description is too long").optional(),
   mediaUrl: z.string().url("Invalid media URL"),
-  thumbnailUrl: z.string().url("Invalid thumbnail URL"),
+  thumbnailUrl: z.string().url("Invalid thumbnail URL").optional(),
   conrtolers: z.boolean().optional(),
   transformation: z.object({
     height: z.number().positive(),

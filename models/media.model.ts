@@ -14,7 +14,7 @@ export interface IMedia extends Document {
   fileType: string
   description?: string
   mediaUrl: string // could be local path or remote URL
-  thumbnailUrl: string
+  thumbnailUrl?: string
   controles?: boolean
   transformation?: {
     height: number
@@ -33,7 +33,7 @@ const MediaSchema: Schema<IMedia> = new Schema<IMedia>(
     fileType: { type: String, required: true },
     description: { type: String },
     mediaUrl: { type: String, required: true },
-    thumbnailUrl: { type: String, required: true },
+    thumbnailUrl: { type: String },
     controles: { type: Boolean, default: true },
     transformation: {
       height: { type: Number, default: VIDEO_DIMENSIONS.heihgt },

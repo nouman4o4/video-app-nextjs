@@ -52,7 +52,7 @@ const FileUpload = ({ onSuccess, onProgress }: FileUploadProps) => {
           if (event.lengthComputable && onprogress) {
             const percent = (event.loaded / event.total) * 100
             onProgress(Math.round(percent))
-            setProgress(Math.round(percent))
+            setProgress((event.loaded / event.total) * 100)
           }
         },
 

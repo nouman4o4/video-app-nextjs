@@ -11,7 +11,7 @@ export default function UploadPage() {
   const [progress, setProgress] = useState(0)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
   const { data: session, status } = useSession()
-  console.log({ session })
+  console.log({ session, status })
 
   const saveVideoInDb = async (videoDetails: any) => {
     const {
@@ -25,35 +25,35 @@ export default function UploadPage() {
       description,
       fileType,
     } = videoDetails
-    console.log({ videoDetails })
 
     try {
-      const response = await apiClient.createMedia({
-        title: name,
+      const body = {
+        title: "Video title",
         description:
           description ??
           "This is a dummy description in case the real one is not available",
         mediaUrl: url,
         thumbnailUrl,
         fileType,
-        uploadedBy: "userId"!,
+        uploadedBy: session?.user.id!,
         transformation: {
           height,
           width,
         },
-      })
-      console.log(`"Save ${fileType} in db, response: ", ${response}`)
+      }
+      const response: any = await apiClient.createMedia(body)
+      return response.success ? true : false
     } catch (error) {
       console.error("Failed to post video, error: ", error)
+      return false
     }
   }
 
   // When upload is successful
-  const handleSuccess = (res: any) => {
-    console.log("✅ Upload success:", res)
+  const handleSuccess = async (res: any) => {
     setUploadedUrl(res.url) // ImageKit returns a URL field
-    toast.success("File uploaded successfully!")
-    saveVideoInDb(res)
+    ;(await saveVideoInDb(res)) && toast.success("File uploaded successfully!")
+    console.log("✅ Upload success:", res)
   }
 
   // When upload progress updates
