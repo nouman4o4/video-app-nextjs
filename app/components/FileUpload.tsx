@@ -59,10 +59,8 @@ export default function FileUpload() {
 
     try {
       const body = {
-        title: "Video title",
-        description:
-          description ??
-          "This is a dummy description in case the real one is not available",
+        title,
+        description: description,
         mediaUrl: url,
         thumbnailUrl,
         fileType,
@@ -260,10 +258,10 @@ export default function FileUpload() {
                   </p>
 
                   {/* Progress bar */}
-                  <div className="w-64 bg-white/20 rounded-full h-3 overflow-hidden">
+                  <div className="w-64 bg-gray-700 rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 h-full rounded-full transition-all duration-300 ease-out"
-                      style={{ width: `${progress}%` }} // dynamically update width with progress %
+                      className="h-full bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 rounded-full transition-all duration-300 ease-out animate-pulse"
+                      style={{ width: `${progress}%` }}
                     ></div>
                   </div>
 
