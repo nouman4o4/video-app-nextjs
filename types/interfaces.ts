@@ -11,4 +11,5 @@ export interface IMediaClient {
     quality?: number
   }
   uploadedBy: string
+  _id: string
 }

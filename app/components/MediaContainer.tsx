@@ -16,25 +16,27 @@ export default function VideoContainer({ media }: { media: IMediaClient[] }) {
                 key={i}
                 className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-xl transition-shadow duration-300"
               >
-                {" "}
-                {item.fileType === "image" ? (
-                  <Image
-                    src={item.mediaUrl}
-                    width={500}
-                    height={500}
-                    alt="Picture of the author"
-                    className="w-full h-auto object-cover"
-                  />
-                ) : (
-                  <Video
-                    urlEndpoint={item.mediaUrl}
-                    src={item.mediaUrl}
-                    controls
-                    width={500}
-                    height={500}
-                    className="w-full h-auto object-cover rounded-t-2xl"
-                  />
-                )}
+                <Link href={`/video/${item._id}`}>
+                  {" "}
+                  {item.fileType === "image" ? (
+                    <Image
+                      src={item.mediaUrl}
+                      width={500}
+                      height={500}
+                      alt="Picture of the author"
+                      className="w-full h-auto object-cover"
+                    />
+                  ) : (
+                    <Video
+                      urlEndpoint={item.mediaUrl}
+                      src={item.mediaUrl}
+                      controls
+                      width={500}
+                      height={500}
+                      className="w-full h-auto object-cover rounded-t-2xl"
+                    />
+                  )}
+                </Link>
                 {/* <div className="details p-3">
                   <div className="title">
                     <p className="font-semibold">{item.title}</p>{" "}
