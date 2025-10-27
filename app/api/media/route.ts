@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
     const zodValidationResult = mediaSchema.safeParse(body)
 
     if (!zodValidationResult.success) {
-      console.log({ body })
       return NextResponse.json(
         {
           success: false,

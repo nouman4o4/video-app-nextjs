@@ -1,6 +1,6 @@
 import z from "zod"
 
-export const fileuPloadShcema = z.object({
+export const fileUploadShcema = z.object({
   file: z
     .any()
     .refine((file) => file instanceof File, "File is required.")

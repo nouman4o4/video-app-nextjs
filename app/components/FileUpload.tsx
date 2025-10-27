@@ -7,9 +7,9 @@ import { useSession } from "next-auth/react"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Upload, X } from "lucide-react"
+import { Sparkles, Upload, X } from "lucide-react"
 import toast from "react-hot-toast"
-import { fileuPloadShcema } from "@/schemas/fileuploadSchema"
+import { fileUploadShcema } from "@/schemas/fileuploadSchema"
 
 export default function FileUpload() {
   const [title, setTitle] = useState("")
@@ -45,22 +45,12 @@ export default function FileUpload() {
 
   // post a video in db
   const saveVideoInDb = async (videoDetails: any) => {
-    const {
-      name,
-      thumbnailUrl,
-      height,
-      url,
-      versionInfo,
-      width,
-      fileId,
-      description,
-      fileType,
-    } = videoDetails
+    const { thumbnailUrl, height, url, width, fileType } = videoDetails
 
     try {
       const body = {
         title,
-        description: description,
+        description,
         mediaUrl: url,
         thumbnailUrl,
         fileType,
@@ -80,7 +70,7 @@ export default function FileUpload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const inputsValdatonResult = fileuPloadShcema.safeParse({
+    const inputsValdatonResult = fileUploadShcema.safeParse({
       title,
       description,
       file,
@@ -139,10 +129,17 @@ export default function FileUpload() {
         onSubmit={handleSubmit}
         className="w-full max-w-3xl bg-white shadow-md md:rounded-2xl p-4 md:p-8 border border-gray-100"
       >
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-          Upload Your Media
-        </h2>
-
+        <div className="text-center mb-10">
+          {/* <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-2xl shadow-lg mb-4">
+            <Sparkles className="w-8 h-8 text-white" />
+          </div> */}
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent mb-2">
+            Upload Your Media
+          </h2>
+          <p className="text-gray-600">
+            Share your creative work with the world
+          </p>
+        </div>
         <div className="mb-6 relative">
           <label className="block text-gray-700 font-medium mb-2">
             Title <span className="text-red-500">*</span>
@@ -155,7 +152,7 @@ export default function FileUpload() {
               setErrors({ ...errors, title: undefined })
             }}
             placeholder="Enter a catchy title"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-400  focus:ring-pink-100 transition-all duration-200 text-gray-800 placeholder:text-gray-400"
           />
           <div className="error absolute left-1 -bottom-5 text-sm text-red-300">
             {errors?.title ? errors.title[0] : ""}
@@ -168,10 +165,13 @@ export default function FileUpload() {
           </label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value)
+              console.log(description)
+            }}
             placeholder="Write something about your post..."
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 resize-none focus:outline-none focus:border-pink-400  focus:ring-pink-100 transition-all duration-200 text-gray-800 placeholder:text-gray-400"
           ></textarea>
           <div className="error absolute left-1 -bottom-4 text-sm text-red-300">
             {errors?.descirption ? errors.descirption[0] : ""}
@@ -180,22 +180,24 @@ export default function FileUpload() {
 
         <div className="mb-7">
           <label className="block text-gray-700 font-medium mb-2">
-            Upload File (Image or Video)
+            Upload File
           </label>
           {!previewUrl && (
             <div
-              className={`w-full relative border-dashed border-2  rounded-lg px-4 flex items-center justify-center py-4 ${
+              className={`w-fit mx-auto relative border-dashed border-2  rounded-lg px-4 flex items-center justify-center py-4 ${
                 errors?.file ? "border-red-300" : "border-gray-300"
               }`}
             >
               <label
                 htmlFor="file"
-                className="text-center w-fit p-3 cursor-pointer"
+                className="text-center w-fit p-3 cursor-pointer flex items-center flex-col gap-3"
               >
-                <Upload className="size-12 text-gray-400 w-full text-center mb-2" />
-                <span className="font-medium text-gray-600">
-                  Choose a photo
-                </span>
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                  <Upload className="w-10 h-10 text-purple-600" />
+                </div>
+                <p className="text-lg font-semibold text-gray-700 mb-1">
+                  Drop your files here or click to browse
+                </p>
 
                 <input
                   type="file"
@@ -274,17 +276,19 @@ export default function FileUpload() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={upLoading}
-          className={`w-full py-3 rounded-lg font-semibold transition duration-75 cursor-pointer ${
-            upLoading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gray-800 text-white hover:shadow-xl hover:bg-gray-900"
-          }`}
-        >
-          {upLoading ? "Uploading..." : "Upload"}
-        </button>
+        <div className="text-center pt-4">
+          <button
+            type="submit"
+            disabled={upLoading}
+            className={`w-full py-3 rounded-lg font-semibold transition duration-75 cursor-pointer ${
+              upLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-[1.02] active:scale-[0.98]"
+            }`}
+          >
+            {upLoading ? "Uploading..." : "Upload"}
+          </button>
+        </div>
       </form>
     </div>
   )
