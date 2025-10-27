@@ -31,7 +31,7 @@ export default function RootLayout({
         <Toaster />
         <Providers>
           <Navbar />
-          {children}
+          <div className="mt-16">{children}</div>
         </Providers>
       </body>
     </html>

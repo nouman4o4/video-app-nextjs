@@ -16,7 +16,7 @@ export default function VideoContainer({ media }: { media: IMediaClient[] }) {
                 key={i}
                 className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-xl transition-shadow duration-300"
               >
-                <Link href={`/video/${item._id}`}>
+                <Link href={`/media/${item._id}`}>
                   {" "}
                   {item.fileType === "image" ? (
                     <Image
