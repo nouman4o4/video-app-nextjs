@@ -13,3 +13,16 @@ export interface IMediaClient {
   uploadedBy: string
   _id?: string
 }
+
+export interface IUserClient {
+  _id: string
+  firstname: string
+  lastname: string
+  email: string
+  profileImage?: string
+  media?: string[]
+  totalLikes?: string[]
+  followers?: string[]
+  savedMedia?: string[]
+  about?: string
+}
