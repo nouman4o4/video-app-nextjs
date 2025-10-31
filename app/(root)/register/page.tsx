@@ -1,23 +1,11 @@
 "use client"
-
 import { submitRegister } from "@/actions/registerAction"
 import { useActionState, useEffect, useState } from "react"
-
 import { FormState } from "@/actions/registerAction"
-
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
-import {
-  Eye,
-  EyeOff,
-  GithubIcon,
-  Globe,
-  Linkedin,
-  Mail,
-  SeparatorHorizontal,
-} from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import Github from "next-auth/providers/github"
 
 export default function Register() {
   const [passwordVisible, setPasswordVisible] = useState(false)
@@ -45,11 +33,13 @@ export default function Register() {
   }, [state, router])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen md:py-10 bg-gray-50 flex items-center justify-center md:p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="bg-white md:rounded-2xl shadow-lg p-3 md:p-8 border border-gray-200">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Join us</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Join us
+            </h1>
             <p className="text-gray-500">Find new ideas to try</p>
           </div>
 

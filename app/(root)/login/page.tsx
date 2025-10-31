@@ -1,132 +1,141 @@
 "use client"
 
 import { useActionState, useEffect } from "react"
-import toast from "react-hot-toast"
-import { useRouter } from "next/navigation"
-import { loginSchema } from "@/schemas/login.shcema"
-import { signIn } from "next-auth/react"
 
-type FormState = {
-  email: string
-  password: string
-  success?: boolean
-  errors?: Record<string, string[]>
-  message?: string
-} | null
+import toast from "react-hot-toast"
+import Link from "next/link"
+import { FormState, loginAction } from "@/actions/loginAction"
+import { useRouter } from "next/navigation"
 
 export default function Login() {
   const router = useRouter()
-
-  // submit action
-
-  const submitRegister = async (prevState: FormState, form_data: FormData) => {
-    const data = {
-      email: form_data.get("email") as string,
-      password: form_data.get("password") as string,
-    }
-    const parsed = loginSchema.safeParse(data)
-    if (!parsed.success) {
-      return {
-        ...data,
-        success: false,
-        errors: parsed.error.flatten().fieldErrors,
-      }
-    }
-
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: parsed.data.email,
-      password: parsed.data.password,
-    })
-    console.log(result)
-    if (result?.error) {
-      toast.error("Invalid email or password")
-      return {
-        ...data,
-        message: "Invalid email or password",
-        success: false,
-      }
-    }
-    toast.success("Login successfully")
-    router.push("/")
-    return {
-      ...data,
-      message: "Login successfully",
-      success: true,
-    }
-  }
-
-  const [state, formAction, ispending] = useActionState<FormState, FormData>(
-    submitRegister,
+  const [state, formAction, isPending] = useActionState<FormState, FormData>(
+    loginAction,
     {
       email: "",
       password: "",
       errors: undefined,
       success: undefined,
-      message: "",
+      message: undefined,
     }
   )
-
-  // useEffect(() => {
-  //   if (state?.success) {
-  //     toast.success("User registered successfully.")
-  //     setTimeout(() => router.push("/login"), 500)
-  //   } else if (!state?.success && state?.message) {
-  //     toast.error(state?.message || "Couldn't register the user")
-  //   }
-  // }, [state, router])
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("User registered successfully.")
+      setTimeout(() => router.push("/"), 500)
+    } else if (!state?.success && state?.message) {
+      toast.error(state?.message || "Couldn't register the user")
+    }
+  }, [state, router])
 
   return (
-    <div className="max-w-md  mx-auto p-6 bg-gray-900 text-white rounded-2xl shadow-lg mt-10">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form action={formAction} className="space-y-4">
-        {/* Email */}
-        <div>
-          <label className="block mb-1">Email</label>
-          <input
-            defaultValue={state?.email}
-            type="email"
-            name="email"
-            className="w-full p-2 rounded-md bg-gray-800 border border-gray-700"
-            placeholder="john@example.com"
-          />
-          {state?.errors?.email && (
-            <p className="text-red-400 text-sm">{state?.errors?.email[0]}</p>
-          )}
-        </div>
-        {/* password */}
-        <div>
-          <label className="block mb-1">Password</label>
-          <input
-            defaultValue={state?.password}
-            name="password"
-            type="password"
-            className="w-full p-2 rounded-md bg-gray-800 border border-gray-700"
-            placeholder="********"
-          />
-          {state?.errors?.password && (
-            <p className="text-red-400 text-sm">{state?.errors?.password[0]}</p>
-          )}
+    <main className="md:py-10 min-h-screen flex justify-center bg-gray-50 md:px-4">
+      <div className="w-full max-w-md bg-white shadow-lg md:rounded-2xl p-3 md:p-8 border border-gray-200">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            Welcome back
+          </h1>
+          <p className="text-gray-500">Sign in to continue</p>
         </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-md transition-all"
-        >
-          {ispending ? "Submitting..." : "Submit"}
-        </button>
-      </form>
+        {/* Social buttons  */}
+        <div className="space-y-3 mb-6">
+          <button
+            type="button"
+            onClick={() => toast.success("Google login coming soon!")}
+            className="w-full p-2 border rounded-lg flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-100 transition"
+          >
+            <img src="/icons/google.svg" alt="Apple" className="w-6 h-6 " />
+            <span className="">
+              <span className="hidden md:inline">Continue with</span> Google
+            </span>
+          </button>
+        </div>
 
-      {state?.message && (
-        <p
-          className={`h-6 mt-4 text-sm font-semibold ${
-            state?.success ? "text-green-400" : "text-red-400"
-          }`}
-        >
-          {state.message}
+        {/* OR Separator */}
+        <div className="relative mb-6">
+          <div className="h-px bg-gray-200" />
+          <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">
+            OR
+          </span>
+        </div>
+
+        {/* Login Form */}
+        <form action={formAction} className="space-y-5">
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="john.doe@example.com"
+              disabled={isPending}
+              className="mt-1 w-full h-11 border border-gray-300 rounded-lg px-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {state?.errors?.email && (
+              <p className="text-red-500 text-xs mt-1">{state.errors.email}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              disabled={isPending}
+              className="mt-1 w-full h-11 border border-gray-300 rounded-lg px-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {state?.errors?.password && (
+              <p className="text-red-500 text-xs mt-1">
+                {state.errors.password}
+              </p>
+            )}
+          </div>
+
+          {/* Forgot Password */}
+          <div className="text-right">
+            <Link href="#" className="text-sm text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isPending}
+            className={`w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-500 via-pink-500 to-rose-500 text-white rounded-lg shadow-md hover:opacity-90 transition ${
+              isPending ? "cursor-not-allowed" : ""
+            }`}
+          >
+            {isPending ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Not on our platform yet?{" "}
+          <Link
+            href="/register"
+            className="text-blue-600 font-semibold hover:underline"
+          >
+            Sign up
+          </Link>
         </p>
-      )}
-    </div>
+      </div>
+    </main>
   )
 }
