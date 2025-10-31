@@ -2,22 +2,34 @@ import { IMediaClient } from "@/types/interfaces"
 import { Image, Video } from "@imagekit/next"
 import Link from "next/link"
 import React from "react"
-export default function VideoContainer({ media }: { media: IMediaClient[] }) {
+export default function MediaContainer({
+  media,
+  isLoading,
+}: {
+  media: IMediaClient[]
+  isLoading: boolean
+}) {
+  if (media.length <= 0 && isLoading) {
+    return (
+      <div className="w-full min-h-[70vh] bg-gray-100 rounded-xl md:p-8 p-4 md:">
+        <h1 className="text-xl font-medium text-gray-600">
+          Loading please wait.
+        </h1>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full min-h-[70vh] bg-gray-100 rounded-xl md:p-8 p-4 md:">
-      {" "}
       <div>
-        {" "}
-        {media.length > 0 ? (
+        {!isLoading && media.length > 0 ? (
           <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-4 xl:columns-5 gap-4  md:gap-6 space-y-4 md:space-y-6">
-            {" "}
             {media.map((item, i) => (
               <div
                 key={i}
                 className="break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-md hover:shadow-xl transition-shadow duration-300"
               >
                 <Link href={`/media/${item._id}`}>
-                  {" "}
                   {item.fileType === "image" ? (
                     <Image
                       src={item.mediaUrl}
@@ -58,16 +70,16 @@ export default function VideoContainer({ media }: { media: IMediaClient[] }) {
             ))}
           </div>
         ) : (
-          <div className="text-center">
-            {" "}
-            <p className="">Seems no video is uploaded yet</p>{" "}
-            <button className="p-3 px-4 my-3 rounded bg-gray-300 font-semibold ">
-              {" "}
-              <Link href={"/upload"}>Upload one?</Link>{" "}
-            </button>{" "}
-          </div>
-        )}{" "}
-      </div>{" "}
+          !isLoading && (
+            <div className="text-center">
+              <p className="">Seems no video is uploaded yet</p>{" "}
+              <button className="p-3 px-4 my-3 rounded bg-gray-300 font-semibold ">
+                <Link href={"/upload"}>Upload one?</Link>
+              </button>
+            </div>
+          )
+        )}
+      </div>
     </div>
   )
 }

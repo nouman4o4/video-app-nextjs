@@ -7,10 +7,12 @@ import { IMediaClient } from "@/types/interfaces"
 
 export default function page() {
   const [media, setMedia] = useState<IMediaClient[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAllMedia = async () => {
       try {
+        setLoading(true)
         const response: any = await apiClient.getMedia()
         if (response.status! === "500") {
           console.error("Could not fetch the media due to server error.")
@@ -21,6 +23,8 @@ export default function page() {
         setMedia(response.data)
       } catch (error) {
         console.error(error)
+      } finally {
+        setLoading(false)
       }
     }
     fetchAllMedia()
@@ -31,8 +35,8 @@ export default function page() {
       <h1 className="text-2xl font-bold text-gray-800 uppercase my-5">
         Explore all the videos
       </h1>
-      <div className="h-full ">
-        <MediaContainer media={media ?? []} />
+      <div className="h-full">
+        <MediaContainer isLoading={loading} media={media ?? []} />
       </div>
     </div>
   )
