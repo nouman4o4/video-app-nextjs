@@ -1,25 +1,37 @@
-import mongoose, { Document, Schema } from "mongoose"
+import mongoose, { Document, Types, Schema } from "mongoose"
 import bcrypt from "bcryptjs"
 
 // ---------------------
 // Types / Interfaces
 // ---------------------
-export interface IUser extends Document {
-  name: string
+export interface IUser {
+  firstname: string
+  lastname: string
   email: string
   password: string
+  profileImage?: string
+  media?: Types.ObjectId[]
+  totalLikes?: Types.ObjectId[]
+  followers?: Types.ObjectId[]
+  savedMedia?: Types.ObjectId[]
+
   comparePassword(candidatePassword: string): Promise<boolean>
 }
+export type IUserDocument = IUser & Document
 
 // ---------------------
 // Schema
 // ---------------------
-const UserSchema: Schema<IUser> = new Schema<IUser>(
+const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
   {
-    name: {
+    firstname: {
       type: String,
       required: true,
-      unique: true,
+      trim: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
       trim: true,
     },
     email: {
@@ -28,13 +40,17 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
       unique: true,
       lowercase: true,
     },
+    profileImage: { type: String },
+    media: [{ type: Schema.Types.ObjectId, ref: "Media" }],
+    followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    savedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     password: { type: String, required: true, minlength: 6 },
   },
   { timestamps: true }
 )
 
 // ---------------------
-// Middleware: Hash password before save
+// Middleware: Hash password before save, But will not work for findOneByIdAndUpdate();
 // ---------------------
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next()

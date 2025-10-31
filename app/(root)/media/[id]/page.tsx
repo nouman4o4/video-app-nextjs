@@ -1,6 +1,7 @@
 import { getMedia } from "@/app/actions/getMedia"
 import React from "react"
 import MediaComponent from "./components/MediaComponent"
+import RelatedMedia from "./components/RelatedMedia"
 
 export default async function page({
   params,
@@ -36,8 +37,14 @@ export default async function page({
   }
 
   return (
-    <div>
+    <div className="w-full p-8">
       <MediaComponent mediaData={mediaData} />
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800 uppercase my-5">
+          Related content
+        </h1>
+        <RelatedMedia />
+      </div>
     </div>
   )
 }

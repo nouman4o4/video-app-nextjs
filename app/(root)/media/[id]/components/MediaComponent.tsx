@@ -11,6 +11,8 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { IMediaClient } from "@/types/interfaces"
+import Image from "next/image"
+import { Video } from "@imagekit/next"
 
 export default function MediaComponent({
   mediaData,
@@ -45,13 +47,15 @@ export default function MediaComponent({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none" />
 
                 {mediaData.fileType === "image" ? (
-                  <img
+                  <Image
                     src={mediaData.mediaUrl}
                     alt={mediaData.title}
                     className="w-full h-auto max-h-[70vh] md:max-h-[80vh] object-contain rounded md:rounded-xl "
+                    width={mediaData.transformation?.width}
+                    height={mediaData.transformation?.height}
                   />
                 ) : (
-                  <video
+                  <Video
                     src={mediaData.mediaUrl}
                     controls
                     className="w-full h-auto object-cover rounded-3xl"

@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId, Schema } from "mongoose"
+import mongoose, { Document, ObjectId, Schema, Types } from "mongoose"
 
 // ---------------------
 // Types / Interfaces
@@ -9,7 +9,7 @@ export const VIDEO_DIMENSIONS = {
   heihgt: 1920,
 } as const
 
-export interface IMedia extends Document {
+export interface IMedia {
   title: string
   fileType: string
   description?: string
@@ -21,13 +21,14 @@ export interface IMedia extends Document {
     width: number
     quality?: number
   }
-  uploadedBy: ObjectId
+  uploadedBy: Types.ObjectId
+  category: string
 }
-
+export type IMediaDocument = IMedia & Document
 // ---------------------
 // Schema
 // ---------------------
-const MediaSchema: Schema<IMedia> = new Schema<IMedia>(
+const MediaSchema: Schema<IMediaDocument> = new Schema<IMediaDocument>(
   {
     title: { type: String, required: true, trim: true },
     fileType: { type: String, required: true },
