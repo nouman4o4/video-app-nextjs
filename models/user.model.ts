@@ -8,6 +8,7 @@ export interface IUser {
   firstname: string
   lastname: string
   email: string
+  about?: string
   password: string
   profileImage?: string
   media?: Types.ObjectId[]
@@ -39,6 +40,9 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
       required: true,
       unique: true,
       lowercase: true,
+    },
+    about: {
+      type: String,
     },
     profileImage: { type: String },
     media: [{ type: Schema.Types.ObjectId, ref: "Media" }],

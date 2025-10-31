@@ -33,7 +33,8 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Password is incorrect")
           }
           return {
-            id: user._id,
+            id: String(user._id),
+            _id: user._id,
             email: user.email,
           }
         } catch (error) {
@@ -47,7 +48,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token._id = user.id
         token.email = user.email as string
       }
 
@@ -55,7 +56,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string
+        session.user._id = token._id as string
         session.user.email = token.email as string
       }
       return session

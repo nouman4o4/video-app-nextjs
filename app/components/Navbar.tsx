@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Upload, LogOut, Menu, X, Sparkles } from "lucide-react"
+import { Upload, LogOut, Menu, X, Sparkles, User } from "lucide-react"
+import Link from "next/link"
+import { useSession } from "next-auth/react"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const { data: session, status } = useSession()
   const myPages = [
     {
       slug: "Upload",
@@ -53,13 +55,13 @@ export default function Navbar() {
               )
             })}
 
-            {/* CTA Button */}
-            <a
-              href="/upload"
-              className="ml-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white rounded-full font-medium shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 hover:scale-105 transition-all duration-200"
+            {/* Profile Icon */}
+            <Link
+              href={`profile/${session?.user._id}`}
+              className="ml-2 w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 hover:scale-105 transition-all duration-200 group"
             >
-              Get Started
-            </a>
+              <User className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-200" />
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -86,7 +88,7 @@ export default function Navbar() {
           {myPages.map((link, i) => {
             const Icon = link.icon
             return (
-              <a
+              <Link
                 href={link.path}
                 key={i}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
@@ -94,19 +96,19 @@ export default function Navbar() {
               >
                 <Icon className="w-5 h-5" />
                 <span>{link.slug}</span>
-              </a>
+              </Link>
             )
           })}
 
-          {/* Mobile CTA */}
-          <a
-            href="/upload"
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white rounded-xl font-medium shadow-lg"
+          {/* Mobile Profile Link */}
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white rounded-xl font-medium shadow-lg"
             onClick={() => setIsMenuOpen(false)}
           >
-            <Sparkles className="w-5 h-5" />
-            <span>Get Started</span>
-          </a>
+            <User className="w-5 h-5" />
+            <span>Profile</span>
+          </Link>
         </div>
       </div>
     </nav>
