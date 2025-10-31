@@ -2,34 +2,34 @@ import { connectDB } from "@/lib/db"
 import { User } from "@/models/user.model"
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
+import { registerSchema } from "@/schemas/register.schema"
 
 export async function POST(request: NextRequest) {
-  console.log("Signup api hit")
   try {
-    const { email, password, name } = await request.json()
-    console.log("data:", { email, password, name })
-    if (!email || !password) {
+    const body = await request.json()
+
+    const result = registerSchema.safeParse(body)
+    if (!result.success) {
+      const errors = result.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }))
+
       return NextResponse.json(
         {
           success: false,
-          message: "Email and password are required",
+          message: "Validation failed",
+          errors,
         },
         { status: 400 }
       )
     }
 
-    await connectDB()
-
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
-      return NextResponse.json(
-        { success: false, message: "Email already exists" },
-        { status: 400 }
-      )
-    }
+    const { firstname, lastname, email, password } = result.data
 
     const newUser = await User.create({
-      username: name,
+      firstname,
+      lastname,
       email,
       password,
     })

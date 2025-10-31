@@ -3,7 +3,8 @@
 import { registerSchema } from "@/schemas/register.schema"
 
 export type FormState = {
-  name: string
+  lastname: string
+  firstname: string
   email: string
   password: string
   success?: boolean
@@ -15,9 +16,9 @@ export const submitRegister = async (
   pevState: FormState,
   form_data: FormData
 ) => {
-  //   const data = Object.fromEntries(form_data.entries())
   const data = {
-    name: form_data.get("name") as string,
+    firstname: form_data.get("firstname") as string,
+    lastname: form_data.get("firstname") as string,
     email: form_data.get("email") as string,
     password: form_data.get("password") as string,
   }
@@ -43,14 +44,14 @@ export const submitRegister = async (
       body: JSON.stringify(parsed.data),
     })
 
-    // if (!response.ok) {
-    //   console.error(response)
-    //   return {
-    //     ...data,
-    //     success: false,
-    //     message: `Request failed with ${response.status}`,
-    //   }
-    // }
+    if (!response.ok) {
+      console.error(response)
+      return {
+        ...data,
+        success: false,
+        message: `Request failed with ${response.status}`,
+      }
+    }
 
     const jsonData = await response.json()
     if (!jsonData.success) {
