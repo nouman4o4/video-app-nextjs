@@ -40,7 +40,7 @@ export const getCreatedMedia = async (id: string) => {
       IMediaClient | any[]
     >()
 
-    return media
+    return JSON.parse(JSON.stringify(media)) || []
   } catch (error) {
     console.log("Error fetching user media: ", error)
   }
@@ -61,7 +61,9 @@ export const getSavedMedia = async (userId: string) => {
       })
       .lean<{ savedMedia: any[] }>()
 
-    return JSON.parse(JSON.stringify(user?.savedMedia)) || []
+    return (
+      (user?.savedMedia && JSON.parse(JSON.stringify(user?.savedMedia))) || []
+    )
   } catch (err) {
     console.error("Error fetching saved media:", err)
     return null

@@ -3,7 +3,7 @@
 import { upload } from "@imagekit/next"
 
 import { apiClient } from "@/lib/api-client"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -61,6 +61,15 @@ export default function FileUpload() {
         },
       }
       const response: any = await apiClient.createMedia(body)
+      console.log(
+        "Response in the case of not having the user in the DB: ",
+        response
+      )
+      if (!response.success) {
+        await signOut()
+        toast.error("Session expired please login again")
+        router.push("/login")
+      }
       return response.success ? true : false
     } catch (error) {
       toast.error("Failed to upload")

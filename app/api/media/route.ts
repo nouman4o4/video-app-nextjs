@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/db"
 import { IMedia, Media } from "@/models/media.model"
+import { User } from "@/models/user.model"
 import { mediaSchema } from "@/schemas/media.schema"
 import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server"
@@ -37,6 +38,13 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json(
         { error: "Unauthorized request" },
+        { status: 403 }
+      )
+    }
+    const user = await User.findById(session?.user._id)
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found, please login again" },
         { status: 403 }
       )
     }

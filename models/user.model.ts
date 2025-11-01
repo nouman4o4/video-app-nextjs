@@ -12,7 +12,7 @@ export interface IUser {
   password: string
   profileImage?: string
   media?: Types.ObjectId[]
-  totalLikes?: Types.ObjectId[]
+  totalLikes?: number
   followers?: Types.ObjectId[]
   savedMedia?: Types.ObjectId[]
   likedMedia?: Types.ObjectId[]
@@ -51,6 +51,7 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
     savedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     likedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     password: { type: String, required: true, minlength: 6 },
+    totalLikes: { type: Number, default: 0 },
   },
   { timestamps: true }
 )

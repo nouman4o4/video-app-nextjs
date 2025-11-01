@@ -14,10 +14,14 @@ export default function page() {
       try {
         setLoading(true)
         const response: any = await apiClient.getMedia()
+        if (!response.ok) {
+          console.log("error happened")
+        }
         if (response.status! === "500") {
           console.error("Could not fetch the media due to server error.")
           return
         }
+
         console.log("Fetch all media response: ", response)
 
         setMedia(response.data)
