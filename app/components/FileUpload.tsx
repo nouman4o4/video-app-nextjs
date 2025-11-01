@@ -54,7 +54,7 @@ export default function FileUpload() {
         mediaUrl: url,
         thumbnailUrl,
         fileType,
-        uploadedBy: session?.user.id!,
+        uploadedBy: session?.user._id!,
         transformation: {
           height,
           width,
@@ -63,6 +63,7 @@ export default function FileUpload() {
       const response: any = await apiClient.createMedia(body)
       return response.success ? true : false
     } catch (error) {
+      toast.error("Failed to upload")
       console.error("Failed to post video, error: ", error)
       return false
     }
