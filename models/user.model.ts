@@ -15,6 +15,7 @@ export interface IUser {
   totalLikes?: Types.ObjectId[]
   followers?: Types.ObjectId[]
   savedMedia?: Types.ObjectId[]
+  likedMedia?: Types.ObjectId[]
 
   comparePassword(candidatePassword: string): Promise<boolean>
 }
@@ -48,6 +49,7 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
     media: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     savedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
+    likedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     password: { type: String, required: true, minlength: 6 },
   },
   { timestamps: true }
