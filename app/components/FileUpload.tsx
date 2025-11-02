@@ -1,15 +1,13 @@
 "use client" // This component must be a client component
 
-import { upload } from "@imagekit/next"
-
-import { apiClient } from "@/lib/api-client"
 import { signOut, useSession } from "next-auth/react"
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Sparkles, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import toast from "react-hot-toast"
 import { fileUploadShcema } from "@/schemas/fileuploadSchema"
+import { useFileUpload } from "@/hooks/useFileUpload"
 
 export default function FileUpload() {
   const [title, setTitle] = useState("")
@@ -17,8 +15,8 @@ export default function FileUpload() {
   const [file, setFile] = useState<File | null>()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [fileType, setFileType] = useState<"image" | "video" | null>(null)
-  const [upLoading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+
+  // const [progress, setProgress] = useState(0)
   const { data: session, status } = useSession()
   const [errors, setErrors] = useState<{
     file?: string[]
@@ -26,6 +24,8 @@ export default function FileUpload() {
     descirption?: string[]
   } | null>()
   const router = useRouter()
+
+  const { uploadFile, loading, progress } = useFileUpload()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -43,41 +43,7 @@ export default function FileUpload() {
     }
   }
 
-  // post a video in db
-  const saveVideoInDb = async (videoDetails: any) => {
-    const { thumbnailUrl, height, url, width, fileType } = videoDetails
-
-    try {
-      const body = {
-        title,
-        description,
-        mediaUrl: url,
-        thumbnailUrl,
-        fileType,
-        uploadedBy: session?.user._id!,
-        transformation: {
-          height,
-          width,
-        },
-      }
-      const response: any = await apiClient.createMedia(body)
-      console.log(
-        "Response in the case of not having the user in the DB: ",
-        response
-      )
-      if (!response.success) {
-        await signOut()
-        toast.error("Session expired please login again")
-        router.push("/login")
-      }
-      return response.success ? true : false
-    } catch (error) {
-      toast.error("Failed to upload")
-      console.error("Failed to post video, error: ", error)
-      return false
-    }
-  }
-
+  // submit upload
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const inputsValdatonResult = fileUploadShcema.safeParse({
@@ -86,50 +52,26 @@ export default function FileUpload() {
       file,
     })
     if (!file || !inputsValdatonResult.success) {
-      !file && toast.error("Please a file image/video")
+      !file && toast.error("Please select a file image/video")
       const errors = inputsValdatonResult?.error?.flatten().fieldErrors
       setErrors(errors)
       return
     }
     //try-catch block
 
-    setUploading(true)
-
     try {
-      const authRes = await fetch("/api/auth/imagekit-auth")
-      const auth = await authRes.json()
-      const { signature, expire, token } = auth.authenticationParameters
-      const uploadResponse = await upload({
+      const result = await uploadFile(
         file,
-        fileName: file.name,
-        publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY as string,
-        signature,
-        expire,
-        token,
-        onProgress: (event) => {
-          if (event.lengthComputable && onprogress) {
-            const percent = (event.loaded / event.total) * 100
-
-            setProgress(percent)
-            console.log("OnProgress: ", percent)
-          }
-        },
-
-        // Abort signal to allow cancellation of the upload if needed.
-        // abortSignal: abortController.signal,
-      })
-      if (uploadResponse) {
-        const isDbResponseOk = await saveVideoInDb(uploadResponse)
-        if (isDbResponseOk) {
-          toast.success("File uploaded sucessfully")
-          router.back()
-        }
+        { title, description },
+        session?.user._id!
+      )
+      if (result) {
+        toast.success("File uploaded successfully!")
+        router.back()
       }
     } catch (error) {
       console.error(error)
       toast.error("Failed uploading the file")
-    } finally {
-      setUploading(false)
     }
   }
 
@@ -254,16 +196,9 @@ export default function FileUpload() {
               />
             )}
 
-            {upLoading && (
+            {loading && (
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col justify-center items-center z-50">
                 <div className="flex flex-col items-center space-y-6 p-6 rounded-2xl bg-white/10 shadow-xl border border-white/20 backdrop-blur-md">
-                  {/* Loading spinner */}
-                  {/* <div className="relative bg-red-300">
-                  <div className="absolute inset-0 animate-spin-slow rounded-full border-t-4 border-blue-400 border-solid size-16 opacity-60"></div>
-                  <div className="absolute inset-0 animate-spin rounded-full border-t-4 border-blue-500 border-solid size-16"></div>
-                   <LoaderPinwheel className="text-white size-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" /> 
-                </div> */}
-
                   {/* Uploading text */}
                   <p className="text-white font-medium text-lg tracking-wide animate-pulse">
                     Uploading your file...
@@ -289,14 +224,14 @@ export default function FileUpload() {
         <div className="text-center pt-4">
           <button
             type="submit"
-            disabled={upLoading}
+            disabled={loading}
             className={`w-full py-3 rounded-lg font-semibold transition duration-75 cursor-pointer ${
-              upLoading
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-[1.02] active:scale-[0.98]"
             }`}
           >
-            {upLoading ? "Uploading..." : "Upload"}
+            {loading ? "Uploading..." : "Upload"}
           </button>
         </div>
       </form>

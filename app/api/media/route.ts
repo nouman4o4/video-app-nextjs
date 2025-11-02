@@ -41,14 +41,15 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
-    const user = await User.findById(session?.user._id)
+    const body: IMedia = await request.json()
+    const user = await User.findById(body.uploadedBy)
+
     if (!user) {
       return NextResponse.json(
         { error: "User not found, please login again" },
         { status: 403 }
       )
     }
-    const body: IMedia = await request.json()
 
     const zodValidationResult = mediaSchema.safeParse(body)
 

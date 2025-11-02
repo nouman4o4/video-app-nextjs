@@ -20,10 +20,14 @@ class ApiClient {
       method,
       headers: defaultHeaders,
       body: body ? JSON.stringify(body) : undefined,
+      cache: "no-store",
     })
 
     if (!response.ok) {
-      throw new Error(await response.text())
+      const errorData = await response.json().catch(() => null)
+      const message = errorData?.error || errorData?.message || "Request failed"
+
+      throw Error(message)
     }
 
     return response.json()
