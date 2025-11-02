@@ -18,7 +18,7 @@ export const submitRegister = async (
 ) => {
   const data = {
     firstname: form_data.get("firstname") as string,
-    lastname: form_data.get("firstname") as string,
+    lastname: form_data.get("lastname") as string,
     email: form_data.get("email") as string,
     password: form_data.get("password") as string,
   }
