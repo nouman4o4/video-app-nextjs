@@ -10,6 +10,7 @@ import {
   getUserData,
 } from "@/actions/userActions"
 import { useParams } from "next/navigation"
+import { useUserStore } from "@/store/useUserStore"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"created" | "saved">("created")
@@ -21,7 +22,7 @@ export default function ProfilePage() {
 
   const params = useParams()
   const userId = Array.isArray(params.id) ? params.id[0] : params.id
-
+  const { user, setUser } = useUserStore()
   useEffect(() => {
     const fetchData = async () => {
       if (!userId) return
@@ -29,6 +30,7 @@ export default function ProfilePage() {
         getUserData(userId as string),
         getCreatedMedia(userId as string),
       ])
+      setUser(userDetails!)
       setUserData(userDetails)
       setMedia(created)
       setCreatedLoading(false)

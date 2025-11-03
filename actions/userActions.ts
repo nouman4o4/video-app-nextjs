@@ -25,6 +25,25 @@ export const getUserData = async (id: string) => {
   }
 }
 
+// Update a user
+export const updateUser = async (userId: string, userData: any) => {
+  try {
+    await connectDB()
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new Error("User_id is invalid")
+    }
+    const user: IUserClient | null = await User.findByIdAndUpdate(
+      userId,
+      { userData },
+      { new: true }
+    ).lean<IUserClient>()
+
+    return JSON.parse(JSON.stringify(user))
+  } catch (error) {
+    throw error
+  }
+}
+
 // get user created media
 
 export const getCreatedMedia = async (id: string) => {

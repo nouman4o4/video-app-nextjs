@@ -1,30 +1,87 @@
 "use client"
-import React, { useState } from "react"
+import React, { useActionState, useEffect, useState } from "react"
 import { Camera, X, ChevronLeft, Check, AlertCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { IUserClient } from "@/types/interfaces"
+import { getUserData, updateUser } from "@/actions/userActions"
+import { useUserStore } from "@/store/useUserStore"
+import toast from "react-hot-toast"
+import { userUpdateSchema } from "@/schemas/userUpdateSchema"
+
+interface formState {
+  firstname: string
+  lastname: string
+  gender: string
+  about: string
+  errors?: Record<string, string[] | undefined>
+  success?: boolean | undefined
+  message?: string
+}
 
 export default function EditProfile() {
-  const [formData, setFormData] = useState({
-    firstName: "Jane",
-    lastName: "Doe",
-    about:
-      "Digital creator, travel enthusiast, and coffee lover ☕ | Sharing ideas for home, fashion & lifestyle | DM for collabs",
-    website: "https://janedoe.com",
-    username: "janedoe",
-    location: "San Francisco, CA",
-    pronouns: "she/her",
-  })
-
-  const [charCount, setCharCount] = useState(formData.about.length)
+  const { user, setUser } = useUserStore()
   const router = useRouter()
+
   const maxChars = 500
 
-  const handleChange = (field: any, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (field === "about") {
-      setCharCount(value.length)
+  async function submitForm(_: formState, formData: FormData) {
+    const firstname = formData.get("firstname") as string
+    const lastname = formData.get("lastname") as string
+    const gender = formData.get("gender") as string
+    const about = formData.get("about") as string
+    const data = { firstname, lastname, gender, about }
+    if (
+      firstname === user?.firstname &&
+      lastname === user?.lastname &&
+      gender === user.gender &&
+      about === user.about
+    ) {
+      toast.error("No changes are added yet")
+      return {
+        ...data,
+      }
+    }
+    const parsed = userUpdateSchema.safeParse(data)
+
+    if (!parsed.success) {
+      toast.error("Please fill the data correctly")
+      return {
+        ...data,
+        errors: parsed.error.flatten().fieldErrors,
+      }
+    }
+
+    try {
+      const updatedUser = await updateUser(user?._id!, data)
+      if (!updatedUser) {
+        toast.error("Something went wrong")
+        return data
+      }
+
+      setUser(updatedUser)
+
+      toast.success("User updated sucessfully")
+    } catch (error) {
+      toast.error("Something went wrong. try again later")
+      console.log("error while updating user: ", error)
+      return data
+    } finally {
+      return data
     }
   }
+
+  const [state, formAction, isPending] = useActionState<formState, FormData>(
+    submitForm,
+    {
+      firstname: user?.firstname || "",
+      lastname: user?.lastname || "",
+      gender: user?.gender || "",
+      about: user?.about || "",
+      errors: undefined,
+
+      message: "",
+    }
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,7 +102,7 @@ export default function EditProfile() {
               <p className="text-sm text-gray-600">Keep your profile updated</p>
             </div>
           </div>
-          <button className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-sm">
+          <button className="cursor-pointer px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-sm">
             Save
           </button>
         </div>
@@ -61,7 +118,7 @@ export default function EditProfile() {
           <div className="flex items-start space-x-6">
             <div className="relative">
               <div className="w-32 h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                JD
+                {user?.firstname[0]} {user?.lastname[0]}
               </div>
               <button className="absolute -bottom-2 -right-2 w-12 h-12 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition shadow-md">
                 <Camera className="w-5 h-5 text-gray-700" />
@@ -86,89 +143,105 @@ export default function EditProfile() {
         </div>
 
         {/* Basic Information */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Basic information
-          </h2>
+        <form action={formAction}>
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Basic information
+            </h2>
 
-          <div className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  First name
-                </label>
-                <input
-                  type="text"
-                  value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-                  placeholder="First name"
-                />
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    First name
+                  </label>
+                  <input
+                    type="text"
+                    name="firstname"
+                    defaultValue={state?.firstname}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                    placeholder="First name"
+                  />
+                  {state?.errors?.firstname && (
+                    <p className="text-sm text-red-400">
+                      {state?.errors.firstname[0]}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Last name
+                  </label>
+                  <input
+                    type="text"
+                    name="lastname"
+                    defaultValue={state?.lastname}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                    placeholder="Last name"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Last name
+                  Gender
                 </label>
-                <input
-                  type="text"
-                  value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
-                  placeholder="Last name"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Pronouns
-              </label>
-              <select
-                value={formData.pronouns}
-                onChange={(e) => handleChange("pronouns", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition appearance-none bg-white"
-              >
-                <option value="">Select pronouns</option>
-                <option value="she/her">she/her</option>
-                <option value="he/him">he/him</option>
-                <option value="they/them">they/them</option>
-                <option value="custom">Custom</option>
-                <option value="prefer-not-to-say">Prefer not to say</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                About
-              </label>
-              <textarea
-                rows={5}
-                value={formData.about}
-                onChange={(e) => handleChange("about", e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none transition"
-                placeholder="Tell people a bit about yourself..."
-                maxLength={maxChars}
-              />
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-xs text-gray-500">
-                  Tell people about yourself, what you love, and what inspires
-                  you
-                </p>
-                <span
-                  className={`text-xs font-medium ${
-                    charCount > maxChars - 50 ? "text-red-600" : "text-gray-500"
-                  }`}
+                <select
+                  name="gender"
+                  defaultValue={state?.gender}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition appearance-none bg-white"
                 >
-                  {charCount}/{maxChars}
-                </span>
+                  <option value="">Select pronouns</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="male">Others</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  About
+                </label>
+                <textarea
+                  name="about"
+                  rows={5}
+                  defaultValue={state?.about}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none transition"
+                  placeholder="Tell people a bit about yourself..."
+                  maxLength={maxChars}
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-gray-500">
+                    Tell people about yourself, what you love, and what inspires
+                    you
+                  </p>
+                  <span
+                    className={`text-xs font-medium ${
+                      true ? "text-red-600" : "text-gray-500"
+                    }`}
+                  >
+                    50/50
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          <div className="flex items-center justify-between mt-8 pb-8">
+            <button className="cursor-pointer px-6 py-3 text-gray-700 hover:bg-white hover:shadow-sm font-semibold rounded-full transition border border-gray-300">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="cursor-pointer px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-sm"
+            >
+              Save changes
+            </button>
+          </div>
+        </form>
 
         {/* Online Presence */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
+        {/* <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">
             Online presence
           </h2>
@@ -211,10 +284,10 @@ export default function EditProfile() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Location */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
+        {/* <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Location</h2>
           <p className="text-sm text-gray-600 mb-6">
             Let people know where you're from
@@ -232,10 +305,10 @@ export default function EditProfile() {
               placeholder="City, State/Country"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Account Management */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
+        {/* <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">
             Account management
           </h2>
@@ -307,10 +380,10 @@ export default function EditProfile() {
               </svg>
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Danger Zone */}
-        <div className="bg-white rounded-3xl shadow-sm border border-red-200 p-8">
+        {/* <div className="bg-white rounded-3xl shadow-sm border border-red-200 p-8">
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
             <div className="flex-1">
@@ -326,17 +399,9 @@ export default function EditProfile() {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Bottom Actions */}
-        <div className="flex items-center justify-between mt-8 pb-8">
-          <button className="px-6 py-3 text-gray-700 hover:bg-white hover:shadow-sm font-semibold rounded-full transition border border-gray-300">
-            Cancel
-          </button>
-          <button className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition shadow-sm">
-            Save changes
-          </button>
-        </div>
       </div>
     </div>
   )
