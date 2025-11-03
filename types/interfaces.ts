@@ -25,4 +25,5 @@ export interface IUserClient {
   followers?: string[]
   savedMedia?: string[]
   about?: string
+  gender?: "male" | "female" | "other"
 }

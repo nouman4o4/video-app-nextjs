@@ -9,6 +9,7 @@ export interface IUser {
   lastname: string
   email: string
   about?: string
+  gender?: "male" | "female" | "other"
   password: string
   profileImage?: string
   media?: Types.ObjectId[]
@@ -44,6 +45,10 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
     },
     about: {
       type: String,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
     },
     profileImage: { type: String },
     media: [{ type: Schema.Types.ObjectId, ref: "Media" }],
