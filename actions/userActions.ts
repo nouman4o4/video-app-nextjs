@@ -32,9 +32,15 @@ export const updateUser = async (userId: string, userData: any) => {
     if (!mongoose.isValidObjectId(userId)) {
       throw new Error("User_id is invalid")
     }
+    console.log(userData)
     const user: IUserClient | null = await User.findByIdAndUpdate(
       userId,
-      { userData },
+      {
+        firstname: userData.firstname,
+        lastname: userData.lastname,
+        gender: userData.gender,
+        about: userData.about,
+      },
       { new: true }
     ).lean<IUserClient>()
 
