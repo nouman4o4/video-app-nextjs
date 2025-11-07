@@ -1,6 +1,7 @@
 "use server"
 
 import { connectDB } from "@/lib/db"
+import { deleteImageKitFile } from "@/lib/imageKitDeleteFile"
 import { Media } from "@/models/media.model"
 import { User } from "@/models/user.model"
 import { IMediaClient, IUserClient } from "@/types/interfaces"
@@ -102,14 +103,24 @@ export const updateUserProfileImage = async (
 ) => {
   try {
     if (!ImageData.imageUrl || !ImageData.identifier || !userId) {
-      throw new Error("Required data is  missing to update user profile image")
+      throw new Error("Required data is missing to update user profile image")
     }
     await connectDB()
 
     if (!mongoose.isValidObjectId(userId)) {
       throw new Error("User id is invalid")
     }
-    const user: IUserClient | null = await User.findByIdAndUpdate(
+    const user = await User.findById(userId)
+
+    if (user.profileImage?.identifier) {
+      const deleteResponse = await deleteImageKitFile(
+        user.profileImage.identifier
+      )
+      if (!deleteResponse.success) {
+        throw new Error(deleteResponse.message)
+      }
+    }
+    const updatedUser: IUserClient | null = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
@@ -124,7 +135,7 @@ export const updateUserProfileImage = async (
       .select("-password")
       .lean<IUserClient>()
 
-    return JSON.parse(JSON.stringify(user))
+    return JSON.parse(JSON.stringify(updatedUser))
   } catch (error) {
     throw error
   }

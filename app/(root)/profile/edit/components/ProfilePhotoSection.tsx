@@ -52,7 +52,7 @@ const ProfilePhotoSection: React.FC<Props> = ({
         setPreviewUrl("")
         return
       }
-      console.log(uploadResponse)
+
       // db action call here to update the user profile image in backend
       const updatedUser = await updateUserProfileImage(
         { imageUrl: uploadResponse.url!, identifier: uploadResponse.fileId! },
@@ -76,11 +76,11 @@ const ProfilePhotoSection: React.FC<Props> = ({
     } catch (error) {
       console.error(error)
       toast.error("Failed to upload profile image")
-      setFile(undefined)
-      setPreviewUrl("")
     } finally {
       setLoading(false)
       setIsSelectedImageChanged(false)
+      setFile(undefined)
+      setPreviewUrl("")
     }
   }
   return (
@@ -92,19 +92,28 @@ const ProfilePhotoSection: React.FC<Props> = ({
 
         <div className="flex items-start space-x-6">
           <div className="relative">
-            <div className="w-32 h-32 rounded-full overflow-hidden">
+            <div className="w-32 h-32 rounded-full overflow-hidden relative">
               {!profileImage && !previewUrl && firstname && lastname ? (
                 <div className="w-32 h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
                   {firstname[0]} {lastname[0]}
                 </div>
               ) : (
-                <Image
-                  className="w-full h-full object-cover"
-                  src={previewUrl || profileImage}
-                  width={100}
-                  height={100}
-                  alt="Profile Image"
-                />
+                <>
+                  {loading ? (
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-gray-200 text-sm font-medium ">
+                      Uploading...
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  <Image
+                    className="w-full h-full object-cover"
+                    src={previewUrl || profileImage}
+                    width={100}
+                    height={100}
+                    alt="Profile Image"
+                  />
+                </>
               )}
             </div>
             <label
