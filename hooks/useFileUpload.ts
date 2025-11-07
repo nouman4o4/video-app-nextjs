@@ -9,15 +9,9 @@ import { signOut } from "next-auth/react"
 
 export function useFileUpload() {
   const [progress, setProgress] = useState(0)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const uploadFile = async (
-    file: File,
-    meta: { title: string; description?: string },
-    userId: string
-  ) => {
-    setLoading(true)
+  const uploadFile = async (file: File, distination: string) => {
     setProgress(0)
 
     try {
@@ -33,6 +27,7 @@ export function useFileUpload() {
         signature,
         expire,
         token,
+        folder: distination,
         onProgress: (event) => {
           if (event.lengthComputable) {
             const percent = (event.loaded / event.total) * 100
@@ -45,49 +40,48 @@ export function useFileUpload() {
         // abortSignal: abortController.signal,
       })
 
-      if (!uploadResponse) {
-        toast.error("Failed to upload file")
-        return false
-      }
+      // if (!uploadResponse) {
+      //   toast.error("Failed to upload file")
+      //   return false
+      // }
 
       //  save metadata in the backend
-      const body = {
-        title: meta.title,
-        description: meta.description,
-        fileType: file.type.startsWith("video") ? "video" : "image",
-        mediaUrl: uploadResponse.url,
-        thumbnailUrl: uploadResponse.thumbnailUrl ?? uploadResponse.url,
-        transformation: {
-          width: uploadResponse.width,
-          height: uploadResponse.height,
-        },
-        uploadedBy: userId,
-      }
+      // const body = {
+      //   title: meta.title,
+      //   description: meta.description,
+      //   fileType: file.type.startsWith("video") ? "video" : "image",
+      //   mediaUrl: uploadResponse.url,
+      //   thumbnailUrl: uploadResponse.thumbnailUrl ?? uploadResponse.url,
+      //   transformation: {
+      //     width: uploadResponse.width,
+      //     height: uploadResponse.height,
+      //   },
+      //   uploadedBy: userId,
+      // }
 
-      const response = await fetch("/api/media", {
-        method: "POST",
-        body: JSON.stringify(body),
-      })
-      if (!response.ok) {
-        if (response.status === 403) {
-          toast.error("Session expired please login again!")
-          await signOut()
-          return false
-        } else {
-          toast.error("Failed to upload file")
-          return false
-        }
-      }
-      return true
+      // const response = await fetch("/api/media", {
+      //   method: "POST",
+      //   body: JSON.stringify(body),
+      // })
+      // if (!response.ok) {
+      //   if (response.status === 403) {
+      //     toast.error("Session expired please login again!")
+      //     await signOut();
+      //     return false
+      //   } else {
+      //     toast.error("Failed to upload file")
+      //     return false
+      //   }
+      // }
+      return uploadResponse
     } catch (err) {
       console.error("Upload error:", err)
-      toast.error("Something went wrong during upload")
+
       return false
     } finally {
-      setLoading(false)
       setProgress(0)
     }
   }
 
-  return { uploadFile, progress, loading }
+  return { uploadFile, progress }
 }

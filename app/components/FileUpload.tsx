@@ -15,6 +15,7 @@ export default function FileUpload() {
   const [file, setFile] = useState<File | null>()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [fileType, setFileType] = useState<"image" | "video" | null>(null)
+  const [loading, setLoading] = useState(false)
 
   // const [progress, setProgress] = useState(0)
   const { data: session, status } = useSession()
@@ -25,7 +26,7 @@ export default function FileUpload() {
   } | null>()
   const router = useRouter()
 
-  const { uploadFile, loading, progress } = useFileUpload()
+  const { uploadFile, progress } = useFileUpload()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -60,18 +61,46 @@ export default function FileUpload() {
     //try-catch block
 
     try {
-      const result = await uploadFile(
-        file,
-        { title, description },
-        session?.user._id!
-      )
-      if (result) {
-        toast.success("File uploaded successfully!")
-        router.back()
+      setLoading(true)
+      const uploadResponse = await uploadFile(file, "/media")
+      // save the file in the backend;
+      if (!uploadResponse) {
+        toast.error("Failed to upload file")
+        return
       }
+      const body = {
+        title: title,
+        description: description,
+        fileType: file.type.startsWith("video") ? "video" : "image",
+        mediaUrl: uploadResponse.url,
+        thumbnailUrl: uploadResponse.thumbnailUrl ?? uploadResponse.url,
+        transformation: {
+          width: uploadResponse.width,
+          height: uploadResponse.height,
+        },
+        uploadedBy: session?.user._id!,
+      }
+
+      const response = await fetch("/api/media", {
+        method: "POST",
+        body: JSON.stringify(body),
+      })
+      if (!response.ok) {
+        if (response.status === 403) {
+          toast.error("Session expired please login again!")
+          await signOut()
+        } else {
+          toast.error("Failed to upload file")
+        }
+      }
+
+      toast.success("File uploaded successfully!")
+      router.back()
     } catch (error) {
       console.error(error)
       toast.error("Failed uploading the file")
+    } finally {
+      setLoading(false)
     }
   }
 
