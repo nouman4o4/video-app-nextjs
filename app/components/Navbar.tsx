@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Upload, LogOut, Menu, X, Sparkles, User } from "lucide-react"
 import Link from "next/link"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -16,7 +16,7 @@ export default function Navbar() {
     },
     {
       slug: "Logout",
-      path: "/logout",
+      path: "/",
       icon: LogOut,
     },
   ]
@@ -45,6 +45,9 @@ export default function Navbar() {
               const Icon = link.icon
               return (
                 <Link
+                  onClick={async () =>
+                    link.slug === "Logout" && (await signOut())
+                  }
                   href={link.path}
                   key={i}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 group"
