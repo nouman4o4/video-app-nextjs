@@ -19,7 +19,10 @@ export interface IUserClient {
   firstname: string
   lastname: string
   email: string
-  profileImage?: string
+  profileImage?: {
+    imageUrl: string
+    identifier: string
+  }
   media?: string[]
   totalLikes?: string[]
   followers?: string[]

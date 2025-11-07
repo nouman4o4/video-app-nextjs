@@ -11,7 +11,10 @@ export interface IUser {
   about?: string
   gender?: "male" | "female" | "other"
   password: string
-  profileImage?: string
+  profileImage?: {
+    imageUrl: string
+    identifier: string
+  }
   media?: Types.ObjectId[]
   totalLikes?: number
   followers?: Types.ObjectId[]
@@ -50,7 +53,13 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
       type: String,
       enum: ["male", "female", "other"],
     },
-    profileImage: { type: String },
+    profileImage: {
+      type: {
+        imageUrl: { type: String },
+        identifier: { type: String },
+      },
+      default: null,
+    },
     media: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     savedMedia: [{ type: Schema.Types.ObjectId, ref: "Media" }],
