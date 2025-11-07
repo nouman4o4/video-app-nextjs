@@ -32,7 +32,6 @@ export const updateUser = async (userId: string, userData: any) => {
     if (!mongoose.isValidObjectId(userId)) {
       throw new Error("User_id is invalid")
     }
-    console.log(userData)
     const user: IUserClient | null = await User.findByIdAndUpdate(
       userId,
       {
@@ -42,7 +41,9 @@ export const updateUser = async (userId: string, userData: any) => {
         about: userData.about,
       },
       { new: true }
-    ).lean<IUserClient>()
+    )
+      .select("-password")
+      .lean<IUserClient>()
 
     return JSON.parse(JSON.stringify(user))
   } catch (error) {
@@ -92,5 +93,39 @@ export const getSavedMedia = async (userId: string) => {
   } catch (err) {
     console.error("Error fetching saved media:", err)
     return null
+  }
+}
+
+export const updateUserProfileImage = async (
+  ImageData: { imageUrl: string; identifier: string },
+  userId: string
+) => {
+  try {
+    if (!ImageData.imageUrl || !ImageData.identifier || !userId) {
+      throw new Error("Required data is  missing to update user profile image")
+    }
+    await connectDB()
+
+    if (!mongoose.isValidObjectId(userId)) {
+      throw new Error("User id is invalid")
+    }
+    const user: IUserClient | null = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          profileImage: {
+            imageUrl: ImageData.imageUrl,
+            identifier: ImageData.identifier,
+          },
+        },
+      },
+      { new: true }
+    )
+      .select("-password")
+      .lean<IUserClient>()
+
+    return JSON.parse(JSON.stringify(user))
+  } catch (error) {
+    throw error
   }
 }

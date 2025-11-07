@@ -1,0 +1,160 @@
+import { updateUserProfileImage } from "@/actions/userActions"
+import { useFileUpload } from "@/hooks/useFileUpload"
+import { useUserStore } from "@/store/useUserStore"
+import { IUserClient } from "@/types/interfaces"
+import { Camera } from "lucide-react"
+import Image from "next/image"
+import React, { useState } from "react"
+import toast from "react-hot-toast"
+interface Props {
+  firstname: string
+  lastname: string
+  profileImage: string
+}
+const ProfilePhotoSection: React.FC<Props> = ({
+  firstname,
+  lastname,
+  profileImage,
+}: Props) => {
+  const [file, setFile] = useState<File>()
+  const [previewUrl, setPreviewUrl] = useState("")
+  const [isSelectedImageChanged, setIsSelectedImageChanged] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const { progress, uploadFile } = useFileUpload()
+  const { user, setUser } = useUserStore()
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
+    if (!selectedFile.type.startsWith("image/")) {
+      toast("Please select an image or video file.")
+      return
+    }
+
+    setFile(selectedFile)
+    const url = URL.createObjectURL(selectedFile)
+    setPreviewUrl(url)
+    setIsSelectedImageChanged(true)
+  }
+  const submitUpload = async () => {
+    if (!file) {
+      toast.error("Please select an image")
+      return
+    }
+
+    try {
+      setLoading(true)
+      const uploadResponse = await uploadFile(file, "/profile-imges")
+      if (!uploadResponse) {
+        toast.error("Failed to upload profile image")
+        setFile(undefined)
+        setPreviewUrl("")
+        return
+      }
+      console.log(uploadResponse)
+      // db action call here to update the user profile image in backend
+      const updatedUser = await updateUserProfileImage(
+        { imageUrl: uploadResponse.url!, identifier: uploadResponse.fileId! },
+        user?._id!
+      )
+      if (!updatedUser) {
+        toast.error("Something went wrong")
+        setFile(undefined)
+        setPreviewUrl("")
+        return
+      }
+      const updatedUserData: IUserClient = {
+        ...(user as IUserClient),
+        _id: user!._id,
+        profileImage: updatedUser.profileImage,
+      }
+
+      setUser(updatedUserData)
+
+      toast.success("Profile image updated sucessfully")
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to upload profile image")
+      setFile(undefined)
+      setPreviewUrl("")
+    } finally {
+      setLoading(false)
+      setIsSelectedImageChanged(false)
+    }
+  }
+  return (
+    <div>
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-6">
+          Profile photo
+        </h2>
+
+        <div className="flex items-start space-x-6">
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full overflow-hidden">
+              {!profileImage && !previewUrl && firstname && lastname ? (
+                <div className="w-32 h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                  {firstname[0]} {lastname[0]}
+                </div>
+              ) : (
+                <Image
+                  className="w-full h-full object-cover"
+                  src={previewUrl || profileImage}
+                  width={100}
+                  height={100}
+                  alt="Profile Image"
+                />
+              )}
+            </div>
+            <label
+              htmlFor="file"
+              className="absolute hover:cursor-pointer -bottom-2 -right-2 w-12 h-12 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition shadow-md"
+            >
+              <input
+                type="file"
+                name="file"
+                id="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="sr-only"
+              />
+              <Camera className="w-5 h-5 text-gray-700" />
+            </label>
+          </div>
+
+          <div className="flex-1 pt-2">
+            <p className="text-gray-700 mb-4">
+              Use a photo that clearly shows your face. You can also upload a
+              logo or brand image.
+            </p>
+            <div className="flex items-center space-x-3">
+              <button
+                // disabled={!isSelectedImageChanged}
+                onClick={() => {
+                  submitUpload()
+                }}
+                className={`px-5 border-1 py-2.5 bg-gray-100 hover:bg-gray-200 font-medium rounded-full transition text-sm ${
+                  isSelectedImageChanged
+                    ? " border-red-400"
+                    : "border-transparent"
+                } ${
+                  loading
+                    ? "text-gray-600 cursor-not-allowed"
+                    : "text-gray-900 cursor-pointer"
+                }`}
+              >
+                {loading ? "Uploading..." : "Upload photo"}
+              </button>
+              <button className="px-5 cursor-pointer py-2.5 text-gray-700 hover:bg-gray-100 font-medium rounded-full transition text-sm">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ProfilePhotoSection

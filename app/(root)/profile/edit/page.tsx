@@ -7,6 +7,7 @@ import { getUserData, updateUser } from "@/actions/userActions"
 import { useUserStore } from "@/store/useUserStore"
 import toast from "react-hot-toast"
 import { userUpdateSchema } from "@/schemas/userUpdateSchema"
+import ProfilePhotoSection from "./components/ProfilePhotoSection"
 
 interface formState {
   firstname: string
@@ -52,13 +53,19 @@ export default function EditProfile() {
     }
 
     try {
-      const updatedUser = await updateUser(user?._id!, data)
+      const updatedUser: IUserClient = await updateUser(user?._id!, data)
       if (!updatedUser) {
         toast.error("Something went wrong")
         return data
       }
 
-      setUser(updatedUser)
+      setUser({
+        ...(user as IUserClient),
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        gender: updatedUser.gender,
+        about: updatedUser.gender,
+      })
 
       toast.success("User updated sucessfully")
     } catch (error) {
@@ -78,7 +85,6 @@ export default function EditProfile() {
       gender: user?.gender || "",
       about: user?.about || "",
       errors: undefined,
-
       message: "",
     }
   )
@@ -110,37 +116,11 @@ export default function EditProfile() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Profile Photo Section */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Profile photo
-          </h2>
-
-          <div className="flex items-start space-x-6">
-            <div className="relative">
-              <div className="w-32 h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                {user?.firstname[0]} {user?.lastname[0]}
-              </div>
-              <button className="absolute -bottom-2 -right-2 w-12 h-12 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition shadow-md">
-                <Camera className="w-5 h-5 text-gray-700" />
-              </button>
-            </div>
-
-            <div className="flex-1 pt-2">
-              <p className="text-gray-700 mb-4">
-                Use a photo that clearly shows your face. You can also upload a
-                logo or brand image.
-              </p>
-              <div className="flex items-center space-x-3">
-                <button className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-full transition text-sm">
-                  Upload photo
-                </button>
-                <button className="px-5 py-2.5 text-gray-700 hover:bg-gray-100 font-medium rounded-full transition text-sm">
-                  Remove
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProfilePhotoSection
+          firstname={user?.firstname!}
+          lastname={user?.lastname!}
+          profileImage={user?.profileImage?.imageUrl!}
+        />
 
         {/* Basic Information */}
         <form action={formAction}>
@@ -158,7 +138,7 @@ export default function EditProfile() {
                   <input
                     type="text"
                     name="firstname"
-                    defaultValue={state?.firstname}
+                    defaultValue={state?.firstname || user?.firstname}
                     className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
                     placeholder="First name"
                   />
@@ -176,7 +156,7 @@ export default function EditProfile() {
                   <input
                     type="text"
                     name="lastname"
-                    defaultValue={state?.lastname}
+                    defaultValue={state?.lastname || user?.lastname}
                     className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
                     placeholder="Last name"
                   />
@@ -189,7 +169,7 @@ export default function EditProfile() {
                 </label>
                 <select
                   name="gender"
-                  defaultValue={state?.gender}
+                  defaultValue={state?.gender || user?.gender}
                   className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition appearance-none bg-white"
                 >
                   <option value="">Select pronouns</option>
@@ -206,7 +186,7 @@ export default function EditProfile() {
                 <textarea
                   name="about"
                   rows={5}
-                  defaultValue={state?.about}
+                  defaultValue={state?.about || user?.about}
                   className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none transition"
                   placeholder="Tell people a bit about yourself..."
                   maxLength={maxChars}
