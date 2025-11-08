@@ -108,7 +108,7 @@ const ProfilePhotoSection: React.FC<Props> = ({
                   )}
                   <Image
                     className="w-full h-full object-cover"
-                    src={previewUrl || profileImage}
+                    src={previewUrl || profileImage || ""}
                     width={100}
                     height={100}
                     alt="Profile Image"
