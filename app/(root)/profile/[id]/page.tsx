@@ -11,6 +11,7 @@ import {
 } from "@/actions/userActions"
 import { useParams } from "next/navigation"
 import { useUserStore } from "@/store/useUserStore"
+import Image from "next/image"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"created" | "saved">("created")
@@ -53,10 +54,20 @@ export default function ProfilePage() {
       <div className=" mx-auto px-4 py-12">
         {/* Profile Header */}
         <div className="text-center mb-8">
-          <div className="relative inline-block mb-4">
-            <div className="w-32 h-32 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-              {userData?.firstname?.[0]} {userData?.lastname?.[0]}
-            </div>
+          <div className="relative inline-block mb-4 w-32 h-32 rounded-full overflow-hidden">
+            {userData?.profileImage?.imageUrl ? (
+              <Image
+                className="w-full object-cover"
+                src={userData.profileImage.imageUrl}
+                alt="UserProfileImage"
+                width={100}
+                height={100}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                {userData?.firstname?.[0]} {userData?.lastname?.[0]}
+              </div>
+            )}
           </div>
 
           <h1 className="text-4xl font-bold text-gray-900 mb-2 capitalize">

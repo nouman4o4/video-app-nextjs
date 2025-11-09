@@ -4,10 +4,13 @@ import { useState } from "react"
 import { Upload, LogOut, Menu, X, Sparkles, User } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
+import { useUserStore } from "@/store/useUserStore"
+import Image from "next/image"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { data: session, status } = useSession()
+  const { user } = useUserStore()
   const myPages = [
     {
       slug: "Upload",
@@ -59,11 +62,22 @@ export default function Navbar() {
             })}
 
             {/* Profile Icon */}
-            <Link
-              href={`/profile/${session?.user._id}`}
-              className="ml-2 w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg shadow-pink-500/30 hover:shadow-xl hover:shadow-pink-500/40 hover:scale-105 transition-all duration-200 group"
-            >
-              <User className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-200" />
+            <Link href={`/profile/${session?.user._id}`}>
+              <div className="ml-2 w-10 h-10 rounded-full overflow-hidden">
+                {user?.profileImage?.imageUrl ? (
+                  <Image
+                    className="w-full object-cover"
+                    src={user.profileImage.imageUrl}
+                    alt="UserProfileImage"
+                    width={60}
+                    height={60}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 flex items-center justify-center text-white hover:scale-105 transition-all duration-200">
+                    {user?.firstname?.[0]} {user?.lastname?.[0]}
+                  </div>
+                )}
+              </div>
             </Link>
           </div>
 
