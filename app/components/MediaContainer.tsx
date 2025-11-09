@@ -1,5 +1,5 @@
 import { IMediaClient } from "@/types/interfaces"
-import { Image, Video } from "@imagekit/next"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import MediaCard from "./MediaCard"
@@ -40,9 +40,11 @@ export default function MediaContainer({
 
   return (
     <div className="w-full min-h-[70vh] bg-gray-100 rounded-xl p-4 md:p-8">
-      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4 space-y-4">
+      <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
         {media.map((item) => (
-          <MediaCard mediaDetails={item} />
+          <div className="" key={item._id}>
+            <MediaCard item={item} />
+          </div>
         ))}
       </div>
     </div>
