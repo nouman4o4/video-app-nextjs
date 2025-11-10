@@ -4,6 +4,8 @@ import "./globals.css"
 import { Toaster } from "react-hot-toast"
 import Providers from "./providers/Providers"
 import Navbar from "./components/Navbar"
+// import PinterestSidebar from "./components/Sidebar"
+import Label from "./components/Label"
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -31,7 +33,12 @@ export default function RootLayout({
         <Toaster />
         <Providers>
           <Navbar />
+          {/* <PinterestSidebar /> */}
+
           <div className="mt-16">{children}</div>
+          <div className="fixed top-4 right-4 z-50">
+            <Label />
+          </div>
         </Providers>
       </body>
     </html>
