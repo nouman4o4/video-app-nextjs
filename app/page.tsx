@@ -5,7 +5,7 @@ import MediaContainer from "./components/MediaContainer"
 import { apiClient } from "@/lib/api-client"
 import { IMediaClient } from "@/types/interfaces"
 
-export default function page() {
+export default function Home() {
   const [media, setMedia] = useState<IMediaClient[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -22,8 +22,6 @@ export default function page() {
           return
         }
 
-        console.log("Fetch all media response: ", response)
-
         setMedia(response.data)
       } catch (error) {
         console.error(error)
@@ -36,9 +34,6 @@ export default function page() {
 
   return (
     <div className="w-full min-h-screen p-8 bg-gray-50">
-      <h1 className="text-2xl font-bold text-gray-800 uppercase my-5">
-        Explore all the videos
-      </h1>
       <div className="h-full">
         <MediaContainer isLoading={loading} media={media ?? []} />
       </div>
