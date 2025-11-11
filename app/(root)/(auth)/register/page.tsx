@@ -6,7 +6,7 @@ import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-
+import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa"
 export default function Register() {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const router = useRouter()
@@ -44,45 +44,33 @@ export default function Register() {
           </div>
 
           <div className="flex items-center justify-center gap-4 mb-6">
-            {/* google */}
-            <button
-              onClick={() => toast.success("Apple login coming soon!")}
-              className="flex flex-col items-center justify-center w-20 h-20 border border-gray-200 rounded-xl hover:bg-gray-100 transition"
-            >
-              <img
-                src="/icons/google.svg"
-                alt="Apple"
-                className="w-6 h-6 mb-2"
-              />
-              <span className="text-xs font-medium text-gray-700">Google</span>
-            </button>
-
-            {/* linkedIn */}
+            {/* Google */}
             <button
               onClick={() => toast.success("Google login coming soon!")}
               className="flex flex-col items-center justify-center w-20 h-20 border border-gray-200 rounded-xl hover:bg-gray-100 transition"
             >
-              <img
-                src="/icons/linkedin.svg"
-                alt="Google"
-                className="w-6 h-6 mb-2"
-              />
+              <FaGoogle className="w-6 h-6 mb-2 text-[#DB4437]" />
+              <span className="text-xs font-medium text-gray-700">Google</span>
+            </button>
+
+            {/* LinkedIn */}
+            <button
+              onClick={() => toast.success("LinkedIn login coming soon!")}
+              className="flex flex-col items-center justify-center w-20 h-20 border border-gray-200 rounded-xl hover:bg-gray-100 transition"
+            >
+              <FaLinkedin className="w-6 h-6 mb-2 text-[#0A66C2]" />
               <span className="text-xs font-medium text-gray-700">
-                Linked In
+                LinkedIn
               </span>
             </button>
 
-            {/* github */}
+            {/* GitHub */}
             <button
-              onClick={() => toast.success("Twitter login coming soon!")}
+              onClick={() => toast.success("GitHub login coming soon!")}
               className="flex flex-col items-center justify-center w-20 h-20 border border-gray-200 rounded-xl hover:bg-gray-100 transition"
             >
-              <img
-                src="/icons/github.svg"
-                alt="Twitter"
-                className="w-6 h-6 mb-2"
-              />
-              <span className="text-xs font-medium text-gray-700">Github</span>
+              <FaGithub className="w-6 h-6 mb-2 text-gray-800" />
+              <span className="text-xs font-medium text-gray-700">GitHub</span>
             </button>
           </div>
 

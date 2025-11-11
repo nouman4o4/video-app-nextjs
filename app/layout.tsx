@@ -35,7 +35,7 @@ export default function RootLayout({
           <Navbar />
           {/* <PinterestSidebar /> */}
 
-          <div className="mt-16">{children}</div>
+          <div className="mt-16 max-w-7xl">{children}</div>
           <div className="fixed top-4 right-4 z-50">
             <Label />
           </div>

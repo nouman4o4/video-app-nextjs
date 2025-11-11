@@ -7,6 +7,8 @@ import Link from "next/link"
 import { FormState, loginAction } from "@/actions/loginAction"
 import { useRouter } from "next/navigation"
 
+import { FaGoogle } from "react-icons/fa"
+
 export default function Login() {
   const router = useRouter()
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
@@ -45,7 +47,7 @@ export default function Login() {
             onClick={() => toast.success("Google login coming soon!")}
             className="w-full p-2 border rounded-lg flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-100 transition"
           >
-            <img src="/icons/google.svg" alt="Apple" className="w-6 h-6 " />
+            <FaGoogle className="w-6 h-6  text-[#DB4437]" />
             <span className="">
               <span className="hidden md:inline">Continue with</span> Google
             </span>
