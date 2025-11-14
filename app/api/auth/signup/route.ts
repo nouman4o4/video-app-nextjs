@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { firstname, lastname, email, password } = result.data
-
+    await connectDB()
     const newUser = await User.create({
       firstname,
       lastname,
