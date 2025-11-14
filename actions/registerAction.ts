@@ -34,7 +34,7 @@ export const submitRegister = async (
   }
 
   try {
-    const uri = "http://localhost:3000/api/auth/signup"
+    const uri = "/api/auth/signup"
     const response = await fetch(uri, {
       headers: {
         "Content-Type": "application/json",

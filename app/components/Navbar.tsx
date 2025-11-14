@@ -1,18 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Upload,
-  LogOut,
-  Menu,
-  X,
-  Sparkles,
-  User,
-  Search,
-  ChevronDown,
-} from "lucide-react"
-import Link from "next/link"
-import { signOut, useSession } from "next-auth/react"
+import { X, Search, ChevronDown } from "lucide-react"
+
+import { useSession } from "next-auth/react"
 import { useUserStore } from "@/store/useUserStore"
 import Image from "next/image"
 
@@ -22,18 +13,14 @@ export default function Navbar() {
   const { data: session } = useSession()
   const { user } = useUserStore()
 
-  const navLinks = [
-    { name: "Upload", path: "/upload", icon: Upload },
-    { name: "Logout", path: "/", icon: LogOut },
-  ]
-
   return (
     <nav className="fixed w-full top-0 left-0 right-0 pl-20 z-50 bg-white shadow-sm border-b border-gray-200">
       <div className="w-full h-full p-4 flex gap-5 items-center">
         {/* Serach */}
-        <div className="grow group h-full group-focus-within:ring-3 ring-blue-300  bg-gray-200 relative pl-5 py-3 rounded-lg overflow-hidden">
+        <div className="group grow h-full focus-within:ring-2 ring-blue-300 bg-gray-200 relative pl-5 py-3 rounded-lg overflow-hidden">
           <Search className="absolute left-3 size-5 top-1/2 -translate-y-1/2 text-gray-700" />
           <input
+            onFocus={() => console.log("input focused")}
             value={searchValue}
             onChange={(e) => setSearchValue(e.currentTarget.value)}
             type="search"
