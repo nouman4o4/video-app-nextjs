@@ -67,11 +67,11 @@ export const submitRegister = async (
 
       success: true,
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(error)
     return {
       ...data,
-      message: "An unexpected error occured",
+      message: error.message! || "An unexpected error occured",
       errors: undefined,
       success: false,
     }

@@ -29,13 +29,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className={`antialiased max-w-7xl mx-auto`}>
         <Toaster />
         <Providers>
           <Navbar />
           {/* <PinterestSidebar /> */}
 
-          <div className="mt-16 max-w-7xl">{children}</div>
+          <div className="mt-16 ">{children}</div>
           <div className="fixed top-4 right-4 z-50">
             <Label />
           </div>
