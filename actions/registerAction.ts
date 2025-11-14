@@ -1,4 +1,4 @@
-"use server"
+"use client"
 
 import { registerSchema } from "@/schemas/register.schema"
 
