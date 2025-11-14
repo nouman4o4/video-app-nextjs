@@ -5,8 +5,7 @@ export default function AuthLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-100 flex items-center justify-center min-h-screen mx-auto">
-        root Pages Layout
+      <body className="bg-gray-50 flex items-center justify-center min-h-screen mx-auto">
         {children}
       </body>
     </html>

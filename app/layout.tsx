@@ -4,7 +4,7 @@ import "./globals.css"
 import { Toaster } from "react-hot-toast"
 import Providers from "./providers/Providers"
 import Navbar from "./components/Navbar"
-// import PinterestSidebar from "./components/Sidebar"
+import Sidebar from "./components/Sidebar"
 import Label from "./components/Label"
 
 // const geistSans = Geist({
@@ -29,13 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased max-w-7xl mx-auto`}>
+      <body className={`antialiased max-w-[1440px] mx-auto relative`}>
         <Toaster />
         <Providers>
           <Navbar />
-          {/* <PinterestSidebar /> */}
-
-          <div className="mt-16 ">{children}</div>
+          <div className="mt-20 relative ">
+            <Sidebar />
+            <div className="ml-20 ">{children}</div>
+          </div>
           <div className="fixed top-4 right-4 z-50">
             <Label />
           </div>
