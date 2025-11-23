@@ -1,13 +1,13 @@
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+import Sidebar from "@/app/components/Sidebar"
+import React from "react"
+
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50 flex items-center justify-center min-h-screen mx-auto">
-        {children}
-      </body>
-    </html>
+    <div>
+      <div>
+        <Sidebar />
+      </div>
+      <div className="ml-20">{children}</div>
+    </div>
   )
 }

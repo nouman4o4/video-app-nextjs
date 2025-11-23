@@ -1,21 +1,48 @@
 "use client"
 
-import { useState } from "react"
-import { X, Search, ChevronDown } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { X, Search, ChevronDown, LogOut } from "lucide-react"
 
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { useUserStore } from "@/store/useUserStore"
 import Image from "next/image"
+import FullLogo from "./FullLogo"
+import Link from "next/link"
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const { data: session } = useSession()
-  const { user } = useUserStore()
+  const { user, clearUser } = useUserStore()
+  const dropDownMenuRef = useRef<HTMLDivElement>(null)
+
+  // close menu when click outside of the menu
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropDownMenuRef.current &&
+        !dropDownMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <nav className="fixed w-full top-0 left-0 right-0 pl-20 z-50 bg-white shadow-sm border-b border-gray-200">
       <div className="w-full h-full p-4 flex gap-5 items-center">
+        {!session?.user._id ? (
+          <div>
+            <FullLogo />
+          </div>
+        ) : (
+          ""
+        )}
         {/* Serach */}
         <div className="group grow h-full focus-within:ring-2 ring-blue-300 bg-gray-200 relative pl-5 py-3 rounded-lg overflow-hidden">
           <Search className="absolute left-3 size-5 top-1/2 -translate-y-1/2 text-gray-700" />
@@ -45,8 +72,8 @@ export default function Navbar() {
           </div>
         </div>
         {/* Right User  */}
-        <div className="flex items-center gap-1">
-          <div className="size-14 rounded-full overflow-hidden">
+        <div className="flex items-center gap-2">
+          <div className="size-12 rounded-full overflow-hidden">
             {user?.profileImage?.imageUrl ? (
               <Image
                 className="w-full object-cover"
@@ -61,11 +88,57 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <button className="cursor-pointer">
+          <button
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="cursor-pointer hover:bg-gray-100 rounded"
+          >
             <ChevronDown className="size-5 text-gray-700" />
           </button>
         </div>
       </div>
+
+      {/* popup menu */}
+      {isMenuOpen ? (
+        <div
+          ref={dropDownMenuRef}
+          className="absolute right-2 top-[75px] shadow-xl bg-white z-20 p-4 rounded-xl"
+        >
+          <p className="text-xs text-gray-500">Currently in</p>
+          <div className="flex flex-col pt-2">
+            <Link
+              href={`/profile/${user?._id}`}
+              className="mb-2 pb-2 border-b border-gray-200"
+            >
+              <div className="flex gap-3 py-2 px-2 hover:bg-gray-100 rounded-lg ">
+                <Image
+                  className="size-14 object-cover rounded-full"
+                  src={user?.profileImage?.imageUrl || ""}
+                  width={50}
+                  height={50}
+                  alt="Profile"
+                />
+                <div>
+                  <p className="font-medium">
+                    {user?.firstname} {user?.lastname}
+                  </p>
+                  <p className="text-gray-600">{user?.email}</p>
+                </div>
+              </div>
+            </Link>
+            <button
+              onClick={() => {
+                signOut()
+                clearUser()
+              }}
+              className="w-full py-2 font-medium rounded bg-gray-50 hover:bg-gray-100 shadow text-gray-700 cursor-pointer"
+            >
+              <LogOut className="inline size-5 mr-1" /> Log out
+            </button>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
     </nav>
   )
 }

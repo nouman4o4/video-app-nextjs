@@ -33,10 +33,7 @@ export default function RootLayout({
         <Toaster />
         <Providers>
           <Navbar />
-          <div className="mt-20 relative ">
-            <Sidebar />
-            <div className="ml-20 ">{children}</div>
-          </div>
+          <div className="mt-20 relative ">{children}</div>
           <div className="fixed top-4 right-4 z-50">
             <Label />
           </div>

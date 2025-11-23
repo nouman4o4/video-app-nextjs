@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import MediaContainer from "./components/MediaContainer"
+import MediaContainer from "../../components/MediaContainer"
 import { apiClient } from "@/lib/api-client"
 import { IMediaClient } from "@/types/interfaces"
 
