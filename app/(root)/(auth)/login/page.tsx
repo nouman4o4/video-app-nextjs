@@ -8,9 +8,15 @@ import { FormState, loginAction } from "@/actions/loginAction"
 import { useRouter } from "next/navigation"
 
 import { FaGoogle } from "react-icons/fa"
+import { useSession } from "next-auth/react"
+import { getUserData } from "@/actions/userActions"
+import { useUserStore } from "@/store/useUserStore"
+import { IUserClient } from "@/types/interfaces"
 
 export default function Login() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const { setUser } = useUserStore()
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     loginAction,
     {
@@ -22,13 +28,21 @@ export default function Login() {
     }
   )
   useEffect(() => {
-    if (state?.success) {
-      toast.success("User registered successfully.")
-      setTimeout(() => router.push("/"), 500)
-    } else if (!state?.success && state?.message) {
-      toast.error(state?.message || "Couldn't register the user")
+    const fetchAndSetUser = async () => {
+      if (state?.success) {
+        toast.success("User registered successfully.")
+        const user = await getUserData(session?.user._id!)
+        if (user) {
+          setUser(user)
+        }
+        setTimeout(() => router.push("/"), 500)
+      } else if (!state?.success && state?.message) {
+        toast.error(state?.message || "Couldn't register the user")
+      }
     }
-  }, [state, router])
+
+    fetchAndSetUser()
+  }, [state, router, session, setUser])
 
   return (
     <main className="md:py-10 min-h-screen flex justify-center bg-gray-50 md:px-4">
