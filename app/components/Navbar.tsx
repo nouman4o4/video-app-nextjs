@@ -15,6 +15,7 @@ export default function Navbar() {
   const { data: session } = useSession()
   const { user, clearUser } = useUserStore()
   const dropDownMenuRef = useRef<HTMLDivElement>(null)
+  const chevronRef = useRef<HTMLButtonElement>(null)
 
   // close menu when click outside of the menu
 
@@ -22,6 +23,7 @@ export default function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (
         dropDownMenuRef.current &&
+        !chevronRef.current?.contains(event.target as Node) &&
         !dropDownMenuRef.current.contains(event.target as Node)
       ) {
         setIsMenuOpen(false)
@@ -95,6 +97,7 @@ export default function Navbar() {
                 )}
               </div>
               <button
+                ref={chevronRef}
                 onClick={() => setIsMenuOpen((prev) => !prev)}
                 className="cursor-pointer hover:bg-gray-100 rounded"
               >
