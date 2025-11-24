@@ -34,7 +34,11 @@ export default function Navbar() {
   }, [])
 
   return (
-    <nav className="fixed w-full top-0 left-0 right-0 pl-20 z-50 bg-white shadow-sm border-b border-gray-200">
+    <nav
+      className={`fixed w-full top-0 left-0 right-0 ${
+        session?.user._id ? "pl-20" : ""
+      } z-50 bg-white shadow-sm border-b border-gray-200`}
+    >
       <div className="w-full h-full p-4 flex gap-5 items-center">
         {!session?.user._id ? (
           <div>
@@ -44,7 +48,7 @@ export default function Navbar() {
           ""
         )}
         {/* Serach */}
-        <div className="group grow h-full focus-within:ring-2 ring-blue-300 bg-gray-200 relative pl-5 py-3 rounded-lg overflow-hidden">
+        <div className="group grow h-full focus-within:ring-2 ring-blue-300 bg-gray-200 relative pl-5 py-3 rounded-full overflow-hidden">
           <Search className="absolute left-3 size-5 top-1/2 -translate-y-1/2 text-gray-700" />
           <input
             onFocus={() => console.log("input focused")}
@@ -65,35 +69,52 @@ export default function Navbar() {
             ) : (
               ""
             )}
-            <div className="flex px-3 bg-black h-full text-white items-center justify-center cursor-pointer">
+            {/* <div className="flex px-3 bg-black h-full text-white items-center justify-center cursor-pointer">
               <Search />
-              {/* <span>Search</span> */}
-            </div>
+           
+            </div> */}
           </div>
         </div>
         {/* Right User  */}
-        <div className="flex items-center gap-2">
-          <div className="size-12 rounded-full overflow-hidden">
-            {user?.profileImage?.imageUrl ? (
-              <Image
-                className="w-full object-cover"
-                src={user.profileImage.imageUrl}
-                alt="UserProfileImage"
-                width={100}
-                height={100}
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                {user?.firstname?.[0]} {user?.lastname?.[0]}
+        <div>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="size-12 rounded-full overflow-hidden">
+                {user?.profileImage?.imageUrl ? (
+                  <Image
+                    className="w-full h-full object-cover"
+                    src={user.profileImage.imageUrl}
+                    alt="UserProfileImage"
+                    width={50}
+                    height={50}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                    {user?.firstname?.[0]} {user?.lastname?.[0]}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <button
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="cursor-pointer hover:bg-gray-100 rounded"
-          >
-            <ChevronDown className="size-5 text-gray-700" />
-          </button>
+              <button
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+                className="cursor-pointer hover:bg-gray-100 rounded"
+              >
+                <ChevronDown className="size-5 text-gray-700" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link href={"/login"}>
+                <button className="p-3 px-4 rounded-2xl shadow-xl font-medium cursor-pointer bg-gray-200">
+                  Log in
+                </button>
+              </Link>
+              <Link href={"/register"}>
+                <button className="p-3 px-4 rounded-2xl shadow-xl  bg-red-600 text-white font-medium cursor-pointer">
+                  Sign up
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -106,6 +127,7 @@ export default function Navbar() {
           <p className="text-xs text-gray-500">Currently in</p>
           <div className="flex flex-col pt-2">
             <Link
+              onClick={() => setIsMenuOpen(false)}
               href={`/profile/${user?._id}`}
               className="mb-2 pb-2 border-b border-gray-200"
             >
@@ -127,6 +149,7 @@ export default function Navbar() {
             </Link>
             <button
               onClick={() => {
+                setIsMenuOpen(false)
                 signOut()
                 clearUser()
               }}

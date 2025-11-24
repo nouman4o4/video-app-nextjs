@@ -1,13 +1,21 @@
+"use client"
 import Sidebar from "@/app/components/Sidebar"
+import { useUserStore } from "@/store/useUserStore"
 import React from "react"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useUserStore()
+  console.log({ user })
   return (
     <div>
-      <div>
-        <Sidebar />
-      </div>
-      <div className="ml-20">{children}</div>
+      {user ? (
+        <div>
+          <Sidebar />
+        </div>
+      ) : (
+        ""
+      )}
+      <div className={`${user ? "ml-20" : ""}`}>{children}</div>
     </div>
   )
 }

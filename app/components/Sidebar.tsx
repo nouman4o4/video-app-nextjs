@@ -1,26 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Bell, Home, ImagePlusIcon, Plus, User, User2 } from "lucide-react"
+import {
+  Bell,
+  Home,
+  ImagePlusIcon,
+  Plus,
+  User,
+  User2,
+  PlusSquare,
+} from "lucide-react"
 import { useUserStore } from "@/store/useUserStore"
 import { useSession } from "next-auth/react"
+import NLogo from "./NLogo"
+import { usePathname } from "next/navigation"
 
 export default function Sidebar() {
   const [activeItem, setActiveItem] = useState("home")
   const { user } = useUserStore()
   const { data: session } = useSession()
+  const pathname = usePathname()
+  console.log(pathname)
 
   const menuItems = [
     {
       id: "logo",
-      icon: (
-        <>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-110 transition-all duration-300">
-            N
-          </div>
-        </>
-      ),
+      icon: <NLogo />,
       href: "/",
       label: "Pinterest",
       isLogo: true,
@@ -43,7 +49,7 @@ export default function Sidebar() {
     // },
     {
       id: "create",
-      icon: <ImagePlusIcon />,
+      icon: <PlusSquare />,
       href: "/upload",
       label: "Create",
     },
@@ -56,22 +62,24 @@ export default function Sidebar() {
     {
       id: "profile",
       icon: <User2 />,
-      href: user ? "/profile/" + user?._id! : "#",
+      href: "/profile/" + session?.user._id,
       label: "Profile",
     },
   ]
 
+  useEffect(() => {
+    if (pathname === "/") setActiveItem("home")
+    console.log({ pathname })
+    console.log({ activeItem })
+  }, [pathname])
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[80px] bg-white border-r border-gray-200 flex flex-col gap-6 items-center py-2 z-50">
+    <aside className="fixed left-0 top-0 h-screen w-[80px] pt-3 bg-white border-r border-gray-200 flex flex-col gap-6 items-center py-2 z-50">
       {menuItems.map((item) => (
         <Link
           key={item.id}
-          href={
-            !user && (item.id === "profile" || item.id === "create")
-              ? "/login"
-              : item.href
-          }
-          onClick={() => setActiveItem(item.id)}
+          href={item.href}
+          onClick={() => setActiveItem(item.id === "logo" ? "home" : item.id)}
           className={`
             w-12 h-12 flex items-center justify-center rounded-full
             transition-all duration-200 my-1

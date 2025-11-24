@@ -39,7 +39,7 @@ export default function MediaContainer({
   }
 
   return (
-    <div className="w-full min-h-[70vh] bg-gray-100 rounded-xl p-4 md:p-8">
+    <div className="w-full min-h-[70vh]">
       <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
         {media.map((item) => (
           <div className="" key={item._id}>
