@@ -33,7 +33,7 @@ export default function Register() {
   }, [state, router])
 
   return (
-    <div className="min-h-screen md:py-10 bg-gray-50 flex items-center justify-center md:p-4">
+    <div className="md:min-h-screen pt-6 md:pt-0 md:py-10 bg-gray-50 flex items-center justify-center md:p-4">
       <div className="w-full max-w-md">
         <div className="bg-white md:rounded-2xl shadow-lg p-3 md:p-8 border border-gray-200">
           <div className="text-center mb-8">

@@ -29,15 +29,16 @@ export default function Login() {
   )
   useEffect(() => {
     const fetchAndSetUser = async () => {
+      console.log(state)
       if (state?.success) {
-        toast.success("User registered successfully.")
+        toast.success("logged in successfully.")
         const user = await getUserData(session?.user._id!)
         if (user) {
           setUser(user)
         }
         setTimeout(() => router.push("/"), 500)
       } else if (!state?.success && state?.message) {
-        toast.error(state?.message || "Couldn't register the user")
+        toast.error(state?.message || "Couldn't log in the user")
       }
     }
 
@@ -45,7 +46,7 @@ export default function Login() {
   }, [state, router, session, setUser])
 
   return (
-    <main className="md:py-10 min-h-screen flex justify-center bg-gray-50 md:px-4">
+    <main className="pt-6 md:pt-0 md:py-10 min-h-screen flex justify-center bg-gray-50 md:px-4">
       <div className="w-full max-w-md bg-white shadow-lg md:rounded-2xl p-3 md:p-8 border border-gray-200">
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
