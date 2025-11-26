@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      {session?.user._id ? (
+      {user ? (
         <div>
           <Sidebar />
         </div>

@@ -38,11 +38,11 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed w-full top-0 left-0 right-0 ${
-        session?.user._id ? "pl-20" : ""
+        user ? "pl-20" : ""
       } z-50 bg-white shadow-sm border-b border-gray-200`}
     >
       <div className="w-full h-full p-4 flex gap-5 items-center">
-        {!session?.user._id ? (
+        {!user ? (
           <div>
             <FullLogo />
           </div>
