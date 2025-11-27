@@ -46,7 +46,7 @@ export default function Login() {
   }, [state, router, session, setUser])
 
   return (
-    <main className="pt-6 md:pt-0 md:py-10 min-h-screen flex justify-center bg-gray-50 md:px-4">
+    <main className="pt-6 md:pt-0 md:py-10 min-h-screen flex justify-center md:px-4">
       <div className="w-full max-w-md bg-white shadow-lg md:rounded-2xl p-3 md:p-8 border border-gray-200">
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
@@ -134,7 +134,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isPending}
-            className={`w-full h-11 text-sm font-semibold bg-gradient-to-r from-indigo-500 via-pink-500 to-rose-500 text-white rounded-lg shadow-md hover:opacity-90 transition ${
+            className={`w-full h-11 text-sm font-semibold bg-red-600 cursor-pointer text-white rounded-lg shadow-md hover:opacity-90 transition ${
               isPending ? "cursor-not-allowed" : ""
             }`}
           >
