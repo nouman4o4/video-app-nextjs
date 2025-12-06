@@ -3,7 +3,9 @@ import React from "react"
 export default function CommentsSection() {
   return (
     <div className="mb-8 py-4  border-gray-300">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Comments</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <span>{}</span>Comments
+      </h2>
 
       {/* Add Comment Input */}
       <div className="flex items-center mb-6 space-x-2">

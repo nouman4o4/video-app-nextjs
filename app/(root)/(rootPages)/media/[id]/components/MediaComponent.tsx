@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Heart,
   Share2,
@@ -10,10 +10,12 @@ import {
   Bookmark,
   ExternalLink,
 } from "lucide-react"
-import { IMediaClient } from "@/types/interfaces"
+import { IMediaClient, IUserClient } from "@/types/interfaces"
 import Image from "next/image"
 import { Video } from "@imagekit/next"
 import CommentsSection from "./CommentsSection"
+import { useUserStore } from "@/store/useUserStore"
+import { getUserData } from "@/actions/userActions"
 
 export default function MediaComponent({
   mediaData,
@@ -23,11 +25,21 @@ export default function MediaComponent({
   const [isLiked, setIsLiked] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [likes, setLikes] = useState(234)
+  const { user } = useUserStore()
+  const [creator, setCreator] = useState<IUserClient>()
 
   const handleLike = () => {
     setIsLiked(!isLiked)
     setLikes(isLiked ? likes - 1 : likes + 1)
   }
+
+  useEffect(() => {
+    const getCreator = async () => {
+      const data = await getUserData(mediaData.uploadedBy)
+      setCreator(data)
+    }
+    getCreator()
+  }, [mediaData])
 
   if (!mediaData) {
     return (
@@ -36,10 +48,10 @@ export default function MediaComponent({
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center px-4 py-12">
+    <div className="min-h-screen w-full flex flex-col items-center px-4 py-12 max-w-6xl">
       {/* Container with glassmorphism effect */}
       <div className="w-full max-w-7xl">
-        <div className="w-full p-4 md:p-6 grid md:grid-cols-2 gap-8 items-start bg-white rounded-3xl shadow-lg">
+        <div className="w-full p-4 md:p-6 grid md:grid-cols-2 gap-2 md:gap-4 lg:gap-6 items-start bg-white rounded-3xl shadow-lg">
           {/* Media Section - Left Side */}
           <div className="relative group ">
             <div className="relative w-full pr-3 rounded-2xl overflow-hidden mx-auto">
@@ -50,7 +62,7 @@ export default function MediaComponent({
                 <Image
                   src={mediaData.mediaUrl}
                   alt={mediaData.title}
-                  className="w-full rounded md:rounded-xl "
+                  className="w-full max-h-screen object-cover rounded md:rounded-xl "
                   width={mediaData.transformation?.width}
                   height={mediaData.transformation?.height}
                 />
@@ -58,7 +70,7 @@ export default function MediaComponent({
                 <Video
                   src={mediaData.mediaUrl}
                   controls
-                  className="w-full h-auto object-cover rounded-3xl"
+                  className="w-full max-h-screen  h-auto object-cover rounded-3xl"
                 />
               )}
 
@@ -80,9 +92,16 @@ export default function MediaComponent({
           <div className="flex flex-col gap-6">
             {/* Header Actions */}
             <div className="flex items-center justify-between">
-              <div>Buttons</div>
+              <div className="flex">
+                <div className="flex items-center">
+                  <button className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+                    <Heart />{" "}
+                  </button>{" "}
+                  <span className="font-medium"> {mediaData.likes || 0}</span>
+                </div>
+              </div>
 
-              <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <button className="px-6 py-2.5 bg-red-600 cursor-pointer text-white rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all duration-200">
                 Follow
               </button>
             </div>
@@ -100,12 +119,26 @@ export default function MediaComponent({
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
-                  {mediaData.title.charAt(0).toUpperCase()}
+                <div className="w-12 h-12 bg-gradient-to-br overflow-hidden from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                  {creator?.profileImage ? (
+                    <Image
+                      className="w-full h-full object-cover"
+                      src={creator?.profileImage?.imageUrl}
+                      alt="Profile"
+                      width={50}
+                      height={50}
+                    />
+                  ) : (
+                    creator?.firstname.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Creator Name</p>
-                  <p className="text-xs text-gray-500">2.3K followers</p>
+                  <p className="font-semibold text-gray-900">
+                    {creator?.firstname} {creator?.lastname}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {creator?.followers?.length || "0"} followers
+                  </p>
                 </div>
               </div>
             </div>
