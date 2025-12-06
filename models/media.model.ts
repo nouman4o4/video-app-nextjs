@@ -23,6 +23,7 @@ export interface IMedia {
   }
   uploadedBy: Types.ObjectId
   category: string
+  likes: Types.ObjectId[]
 }
 export type IMediaDocument = IMedia & Document
 // ---------------------
@@ -46,6 +47,12 @@ const MediaSchema: Schema<IMediaDocument> = new Schema<IMediaDocument>(
       ref: "User",
       required: true,
     },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 )
