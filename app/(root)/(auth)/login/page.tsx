@@ -36,6 +36,7 @@ export default function Login() {
         if (user) {
           setUser(user)
         }
+        console.log(user)
         setTimeout(() => router.push("/"), 500)
       } else if (!state?.success && state?.message) {
         toast.error(state?.message || "Couldn't log in the user")

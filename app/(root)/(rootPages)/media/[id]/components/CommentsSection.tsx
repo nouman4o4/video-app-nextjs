@@ -1,5 +1,6 @@
 import React from "react"
 
+// bring required data form the parent compo
 export default function CommentsSection() {
   return (
     <div className="mb-8 py-4  border-gray-300">
