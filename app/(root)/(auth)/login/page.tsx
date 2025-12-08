@@ -1,50 +1,67 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
-
+import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Link from "next/link"
-import { FormState, loginAction } from "@/actions/loginAction"
 import { useRouter } from "next/navigation"
-
 import { FaGoogle } from "react-icons/fa"
-import { useSession } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { getUserData } from "@/actions/userActions"
 import { useUserStore } from "@/store/useUserStore"
-import { IUserClient } from "@/types/interfaces"
+import { loginSchema } from "@/schemas/login.shcema"
 
 export default function Login() {
+  const { data: session, status } = useSession()
   const router = useRouter()
-  const { data: session } = useSession()
   const { setUser } = useUserStore()
-  const [state, formAction, isPending] = useActionState<FormState, FormData>(
-    loginAction,
-    {
-      email: "",
-      password: "",
-      errors: undefined,
-      success: undefined,
-      message: undefined,
-    }
-  )
-  useEffect(() => {
-    const fetchAndSetUser = async () => {
-      console.log(state)
-      if (state?.success) {
-        toast.success("logged in successfully.")
-        const user = await getUserData(session?.user._id!)
-        if (user) {
-          setUser(user)
-        }
-        console.log(user)
-        setTimeout(() => router.push("/"), 500)
-      } else if (!state?.success && state?.message) {
-        toast.error(state?.message || "Couldn't log in the user")
-      }
+
+  const [errors, setErrors] = useState<{
+    email?: string[]
+    password?: string[]
+  }>({})
+  const [isPending, setIsPending] = useState(false)
+
+  // CLIENT-SIDE LOGIN HANDLER
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setErrors({})
+    setIsPending(true)
+
+    const email = event.currentTarget.email.value
+    const password = event.currentTarget.password.value
+
+    // Validate with Zod
+    const parsed = loginSchema.safeParse({ email, password })
+    if (!parsed.success) {
+      setErrors(parsed.error.flatten().fieldErrors)
+      setIsPending(false)
+      return
     }
 
-    fetchAndSetUser()
-  }, [state, router, session, setUser])
+    // NextAuth signIn
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: parsed.data.email,
+      password: parsed.data.password,
+    })
+
+    if (result?.error) {
+      toast.error("Invalid email or password")
+      setIsPending(false)
+      return
+    }
+
+    toast.success("Logged in successfully!")
+    router.push("/")
+
+    setIsPending(false)
+  }
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?._id) {
+      getUserData(session.user._id).then((user) => setUser(user!))
+    }
+  }, [status, session])
 
   return (
     <main className="pt-6 md:pt-0 md:py-10 min-h-screen flex justify-center md:px-4">
@@ -56,15 +73,15 @@ export default function Login() {
           <p className="text-gray-500">Sign in to continue</p>
         </div>
 
-        {/* Social buttons  */}
+        {/* Social buttons */}
         <div className="space-y-3 mb-6">
           <button
             type="button"
             onClick={() => toast.success("Google login coming soon!")}
             className="w-full p-2 border rounded-lg flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-100 transition"
           >
-            <FaGoogle className="w-6 h-6  text-[#DB4437]" />
-            <span className="">
+            <FaGoogle className="w-6 h-6 text-[#DB4437]" />
+            <span>
               <span className="hidden md:inline">Continue with</span> Google
             </span>
           </button>
@@ -79,7 +96,7 @@ export default function Login() {
         </div>
 
         {/* Login Form */}
-        <form action={formAction} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
           <div>
             <label
@@ -96,8 +113,8 @@ export default function Login() {
               disabled={isPending}
               className="mt-1 w-full h-11 border border-gray-300 rounded-lg px-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {state?.errors?.email && (
-              <p className="text-red-500 text-xs mt-1">{state.errors.email}</p>
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )}
           </div>
 
@@ -117,10 +134,8 @@ export default function Login() {
               disabled={isPending}
               className="mt-1 w-full h-11 border border-gray-300 rounded-lg px-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {state?.errors?.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {state.errors.password}
-              </p>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
           </div>
 
@@ -135,7 +150,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isPending}
-            className={`w-full h-11 text-sm font-semibold bg-red-600 cursor-pointer text-white rounded-lg shadow-md hover:opacity-90 transition ${
+            className={`w-full h-11 text-sm font-semibold bg-red-600 text-white rounded-lg shadow-md hover:opacity-90 transition ${
               isPending ? "cursor-not-allowed" : ""
             }`}
           >
