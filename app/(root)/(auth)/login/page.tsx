@@ -13,7 +13,7 @@ import { loginSchema } from "@/schemas/login.shcema"
 export default function Login() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { setUser } = useUserStore()
+  const { setUser, user } = useUserStore()
 
   const [errors, setErrors] = useState<{
     email?: string[]
@@ -50,6 +50,13 @@ export default function Login() {
       setIsPending(false)
       return
     }
+    if (session?.user._id) {
+      const userData = await getUserData(session?.user?._id)
+
+      if (userData) {
+        setUser(userData)
+      }
+    }
 
     toast.success("Logged in successfully!")
     router.push("/")
@@ -58,8 +65,14 @@ export default function Login() {
   }
 
   useEffect(() => {
+    if (!user === null || !user === undefined) {
+      return
+    }
     if (status === "authenticated" && session?.user?._id) {
-      getUserData(session.user._id).then((user) => setUser(user!))
+      getUserData(session.user._id).then((userData) => {
+        setUser(userData!)
+        console.log("setUser: ", userData)
+      })
     }
   }, [status, session])
 
