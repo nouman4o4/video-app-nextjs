@@ -2,7 +2,6 @@ import { getMedia } from "@/app/actions/getMedia"
 import React from "react"
 import MediaComponent from "./components/MediaComponent"
 import RelatedMedia from "./components/RelatedMedia"
-import CommentsSection from "./components/CommentsSection"
 
 export default async function page({
   params,
